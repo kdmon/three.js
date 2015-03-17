@@ -38,6 +38,8 @@
 			var SCREEN_WIDTH = window.innerWidth;
 			var SCREEN_HEIGHT = window.innerHeight;
 
+      var scale = 100;
+      
 			var container, stats;
 
 			var camera, scene, renderer;
@@ -125,10 +127,10 @@
   					var image = texturePainting.image;
   					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
   					var mesh = new THREE.Mesh( geometry, materialPainting);
-  					mesh.scale.x = image.width / 50;
-  					mesh.scale.y = image.height / 50;
-  					mesh.position.x = x;
-  					mesh.position.y = 60 + (image.height/100)/2;
+  					mesh.scale.x = image.width/scale * (image.height/image.width);
+  					mesh.scale.y = image.height/scale * (image.height/image.width);
+  					mesh.position.x = x*(image.width/scale);
+  					mesh.position.y = 100+scale/image.height*20;
   					mesh.position.z = z;
   					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
