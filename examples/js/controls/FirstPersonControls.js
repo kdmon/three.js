@@ -12,6 +12,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
 	this.enabled = true;
+	this.audio = false;
 
 	this.movementSpeed = 1.0;
 	this.lookSpeed = 0.005;
@@ -25,6 +26,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	this.heightCoef = 1.0;
 	this.heightMin = 0.0;
 	this.heightMax = 1.0;
+	this.footsteps = new Audio ("http://freesound.org/data/previews/26/26370_37876-lq.mp3");
 
 	this.constrainVertical = false;
 	this.verticalMin = 0;
@@ -212,6 +214,9 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 		if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
 		if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
 
+    if (this.audio && this.footsteps.paused && (this.moveForward || this.moveBackward || this.moveLeft || this.moveRight)) this.footsteps.play();
+    else if (this.audio && !this.footsteps.paused && !(this.moveForward || this.moveBackward || this.moveLeft || this.moveRight)) this.footsteps.pause();
+    
 		var actualLookSpeed = delta * this.lookSpeed;
 
 		if ( !this.activeLook ) {
