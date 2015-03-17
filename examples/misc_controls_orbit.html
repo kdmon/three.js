@@ -55,12 +55,20 @@
 			init();
 			render();
 
+			function animate() {
+
+				requestAnimationFrame(animate);
+				controls.update();
+
+			}
+
 			function init() {
 
 				camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 1000 );
 				camera.position.z = 500;
 
 				controls = new THREE.OrbitControls( camera );
+				controls.damping = 0.2;
 				controls.addEventListener( 'change', render );
 
 				scene = new THREE.Scene();
@@ -101,7 +109,8 @@
 				// renderer
 
 				renderer = new THREE.WebGLRenderer( { antialias: false } );
-				renderer.setClearColor( scene.fog.color, 1 );
+				renderer.setClearColor( scene.fog.color );
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 				container = document.getElementById( 'container' );
@@ -116,6 +125,8 @@
 				//
 
 				window.addEventListener( 'resize', onWindowResize, false );
+
+				animate();
 
 			}
 

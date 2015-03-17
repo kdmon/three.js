@@ -8,7 +8,7 @@ THREE.BlendCharacter = function () {
 	this.weightSchedule = [];
 	this.warpSchedule = [];
 
-	this.load = function( url, onLoad ) {
+	this.load = function ( url, onLoad ) {
 
 		var scope = this;
 
@@ -22,12 +22,10 @@ THREE.BlendCharacter = function () {
 
 			// Create the animations
 
-			for ( var i = 0; i < geometry.animations.length; ++i ) {
-
-				THREE.AnimationHandler.add( geometry.animations[ i ] );
+			for ( var i = 0; i < geometry.animations.length; ++ i ) {
 
 				var animName = geometry.animations[ i ].name;
-				scope.animations[ animName ] = new THREE.Animation( scope, animName );
+				scope.animations[ animName ] = new THREE.Animation( scope, geometry.animations[ i ] );
 
 			}
 
@@ -48,7 +46,7 @@ THREE.BlendCharacter = function () {
 
 	this.update = function( dt ) {
 
-		for ( var i = this.weightSchedule.length - 1; i >= 0; --i ) {
+		for ( var i = this.weightSchedule.length - 1; i >= 0; -- i ) {
 
 			var data = this.weightSchedule[ i ];
 			data.timeElapsed += dt;
@@ -89,7 +87,7 @@ THREE.BlendCharacter = function () {
 		// lengths match. This is useful for smoothing out transitions that get out of
 		// phase such as between a walk and run cycle
 
-		for ( var i = this.warpSchedule.length - 1; i >= 0; --i ) {
+		for ( var i = this.warpSchedule.length - 1; i >= 0; -- i ) {
 
 			var data = this.warpSchedule[ i ];
 			data.timeElapsed += dt;
@@ -195,7 +193,7 @@ THREE.BlendCharacter = function () {
 
 			if ( this.animations[ a ].isPlaying ) {
 
-				this.animations[ a ].pause();
+				this.animations[ a ].stop();
 
 			}
 
@@ -205,17 +203,17 @@ THREE.BlendCharacter = function () {
 
 	this.unPauseAll = function() {
 
-	for ( var a in this.animations ) {
+		for ( var a in this.animations ) {
 
-	  if ( this.animations[ a ].isPlaying && this.animations[ a ].isPaused ) {
+			if ( this.animations[ a ].isPlaying && this.animations[ a ].isPaused ) {
 
-		this.animations[ a ].pause();
+				this.animations[ a ].pause();
 
-	  }
+			}
 
-	}
+		}
 
-  };
+	};
 
 
 	this.stopAll = function() {
@@ -251,6 +249,7 @@ THREE.BlendCharacter = function () {
 
 
 THREE.BlendCharacter.prototype = Object.create( THREE.SkinnedMesh.prototype );
+THREE.BlendCharacter.prototype.constructor = THREE.BlendCharacter;
 
 THREE.BlendCharacter.prototype.getForward = function() {
 

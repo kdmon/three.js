@@ -168,10 +168,6 @@
 				light.position.set(100,100,100);
 				scene.add(light);
 
-				var pointlight = new THREE.PointLight(0xffccaa, .1);
-				pointlight.position = camera.position;
-				scene.add(pointlight);
-
 				var materialargs = {
 					color: 0xffffff,
 					specular: 0xffaa00,
@@ -229,6 +225,7 @@
 				}
 
 				var renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: logDepthBuf });
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize(SCREEN_WIDTH/2, SCREEN_HEIGHT);
 				renderer.domElement.style.position = "relative";
 				renderer.domElement.id = 'renderer_' + name;

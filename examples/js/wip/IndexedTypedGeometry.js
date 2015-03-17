@@ -9,6 +9,7 @@ THREE.IndexedTypedGeometry = function () {
 };
 
 THREE.IndexedTypedGeometry.prototype = Object.create( THREE.BufferGeometry.prototype );
+THREE.IndexedTypedGeometry.prototype.constructor = THREE.IndexedTypedGeometry;
 
 THREE.IndexedTypedGeometry.prototype.setArrays = function ( indices, vertices, normals, uvs ) {
 
@@ -20,7 +21,7 @@ THREE.IndexedTypedGeometry.prototype.setArrays = function ( indices, vertices, n
 	this.attributes[ 'index' ] = { array: indices, itemSize: 1 };
 	this.attributes[ 'position' ] = { array: vertices, itemSize: 3 };
 	this.attributes[ 'normal' ] = { array: normals, itemSize: 3 };
-	this.attributes[ 'uv' ] = { array: uvs, itemSize: 2 };	
+	this.attributes[ 'uv' ] = { array: uvs, itemSize: 2 };
 
 	return this;
 
