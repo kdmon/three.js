@@ -11,7 +11,7 @@
 				font-size:13px;
 				text-align:center;
 
-				background-color: #aaa;
+				background-color: #ccc;
 				margin: 0px;
 				overflow: hidden;
 			}
@@ -32,6 +32,8 @@
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 
+		<script src="fonts/droid/droid_sans_regular.typeface.js"></script>
+		
 		<script>
 
 			if ( !Detector.webgl ) Detector.addGetWebGLMessage();
@@ -71,7 +73,7 @@
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
 				camera.position.z = 400;
 				camera.position.x = 1200;
-				camera.position.y = 90;
+				camera.position.y = 105;
 				camera.rotation.y = (Math.PI*180)*0;
 
 				controls = new THREE.FirstPersonControls( camera );
@@ -81,7 +83,7 @@
 				controls.lookVertical = false;
 	
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0xaaaaaa, 1000, 3500 );
+				scene.fog = new THREE.Fog( 0xcccccc, 500, 5000 );
 
 				// FLOOR
         
@@ -125,7 +127,26 @@
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
-
+        function addText (sentence, x, y, z){
+                  
+        	// add 3D text
+        	var materialFront = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+        	var materialSide = new THREE.MeshBasicMaterial( { color: 0x000088 } );
+        	var materialArray = [ materialFront, materialSide ];
+        	var textGeom = new THREE.TextGeometry( sentence, 
+        	{
+        		size: 30, height: 4, curveSegments: 3,
+        		font: "droid sans", weight: "normal", style: "normal",
+        		bevelThickness: 1, bevelSize: 2, bevelEnabled: true,
+        		material: 0, extrudeMaterial: 1
+        	});
+        	
+        	var textMaterial = new THREE.MeshFaceMaterial(materialArray);
+        	var textMesh = new THREE.Mesh(textGeom, textMaterial );
+        	
+        	textMesh.position.set(x,y,z);
+        	scene.add(textMesh);
+        }
 
   			function addPainting (url, x, z, rotation){
   			  x = x*200;
@@ -140,6 +161,8 @@
   					var mesh = new THREE.Mesh( geometry, materialPainting);
   					var scalingfactor = scale/image.width;
   					
+  					addText(url, x, 15,z);
+  					
   					mesh.scale.x = scale/image.width * image.width/8  * (image.width/image.height);
   					mesh.scale.y = scale/image.height * image.height/8;
   					mesh.position.x = x;
@@ -148,7 +171,6 @@
   					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
   					
-            
   					var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
   					meshFrame.scale.x = scale/image.width * image.width/8  * (image.width/image.height)*1.05;
   					meshFrame.scale.y = scale/image.height * image.height/8*1.05;
@@ -159,8 +181,8 @@
   					scene.add( meshFrame );
   					
   					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-  					meshWall.scale.x = 20 * image.width / 100;
-  					meshWall.scale.y = 20 * image.height / 100;
+  					meshWall.scale.x = 30 * image.width / 100;
+  					meshWall.scale.y = 30 * image.height / 100;
   					meshWall.position.x = x;
   					meshWall.position.y = 50 + (image.height/100)/2;
   					meshWall.position.z = z-1+rotation* (Math.PI / 180);
@@ -271,9 +293,10 @@
 
 				var meshCeiling = new THREE.Mesh( geometry, meshMaterial);
 				meshCeiling.scale.x = 200;
-				meshCeiling.scale.y = 1000;
+				meshCeiling.scale.y = 20000;
+				meshCeiling.scale.z = 20000;
 				meshCeiling.position.x = 100;
-				meshCeiling.position.y = 350;
+				meshCeiling.position.y = 400;
 				meshCeiling.position.z = 500;
 				meshCeiling.rotation.x = 90 * (Math.PI / 180);
 				scene.add( meshCeiling );
