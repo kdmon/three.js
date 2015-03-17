@@ -127,10 +127,12 @@
   					var image = texturePainting.image;
   					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
   					var mesh = new THREE.Mesh( geometry, materialPainting);
-  					mesh.scale.x = image.width/scale * (image.height/image.width);
-  					mesh.scale.y = image.height/scale * (image.height/image.width);
-  					mesh.position.x = x*(image.width/scale);
-  					mesh.position.y = 100+scale/image.height*20;
+  					var scalingfactor = scale/image.width;
+  					
+  					mesh.scale.x = scale/image.width * image.width/10  * (image.width/image.height);
+  					mesh.scale.y = scale/image.height * image.height/10;
+  					mesh.position.x = x;
+  					mesh.position.y = 80 + 20*(scale/image.height);
   					mesh.position.z = z;
   					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
@@ -191,7 +193,7 @@
           ];
 
         for(i=0;i<thumbs.length;i++) {
-          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/thumbnail/public/" + thumbs[i], i*100 - (i%2)*100, (i%2)*400, (i%2)*180)
+          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/large/public/" + thumbs[i], i*100 - (i%2)*100, (i%2)*400, (i%2)*180)
         }
         
     
