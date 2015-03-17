@@ -84,25 +84,6 @@
 				scene.fog = new THREE.Fog( 0xaaaaaa, 1000, 3500 );
 
 				// FLOOR
-  
-        function say(words) {
-          var wordCount = '';
-          var sentence = '';
-          if (!words) {
-            words = $("#textwriter").val();
-            var regex = /\s+/gi;
-            wordCount = words.trim().replace(regex, ' ').split(' ').length;
-            sentence += wordCount + "words. ";
-          };
-          if (words.length > 78) sentence += words.substr(words.length - 78);
-          else sentence += words;
-          var a = new Audio("http://it4se.com/upload/kevin/audio.php?l=sv&s=" + sentence);
-          a.play();
-        }
-        
-        
-        say ("Välkommen till internet-galleriet..");
-        
         
 				function mipmap( size, color ) {
 
