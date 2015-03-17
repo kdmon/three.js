@@ -11,7 +11,7 @@
 				font-size:13px;
 				text-align:center;
 
-				background-color: #000;
+				background-color: #fff;
 				margin: 0px;
 				overflow: hidden;
 			}
@@ -59,11 +59,16 @@
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
-				camera.position.z = 500;
-				camera.position.x = -100;
-				camera.position.y = 100;
-				camera.rotation.y = 0;
+				camera.position.z = 200;
+				camera.position.x = -250;
+				camera.position.y = 65;
+				camera.rotation.y = (Math.PI*180)*0;
 
+				controls = new THREE.FirstPersonControls( camera );
+				controls.movementSpeed = 200;
+				controls.lookSpeed = 0.10;
+	      controls.constrainVertical = true;
+	
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0x000000, 1500, 4000 );
 
@@ -86,17 +91,17 @@
 
 				}
 
-				var canvas = mipmap( 128, '#000' );
+				var canvas = mipmap( 128, '#aaa' );
 				var textureCanvas = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
 				textureCanvas.repeat.set( 1000, 1000 );
 				textureCanvas.mipmaps[ 0 ] = canvas;
-				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#fff' );
-				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#fff' );
-				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#fff' );
-				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#fff' );
-				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#fff' );
-				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#fff' );
-				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#fff' );
+				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#aaa' );
+				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#aaa' );
+				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#aaa' );
+				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#aaa' );
+				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#aaa' );
+				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#aaa' );
+				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#aaa' );
 				textureCanvas.needsUpdate = true;
 
 				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas } );
@@ -105,7 +110,7 @@
 
 				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
 				meshCanvas.rotation.x = -Math.PI / 2;
-				meshCanvas.scale.set(1000, 1000, 1000);
+				meshCanvas.scale.set(255, 255, 255);
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
@@ -120,12 +125,12 @@
   					var image = texturePainting.image;
   					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
   					var mesh = new THREE.Mesh( geometry, materialPainting);
-  					mesh.scale.x = image.width / 100;
-  					mesh.scale.y = image.height / 100;
+  					mesh.scale.x = image.width / 50;
+  					mesh.scale.y = image.height / 50;
   					mesh.position.x = x;
-  					mesh.position.y = 50 + (image.height/100)/2;
+  					mesh.position.y = 60 + (image.height/100)/2;
   					mesh.position.z = z;
-  					mesh.rotation.x = rotation * (Math.PI / 180);
+  					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
   
             /*
@@ -133,13 +138,7 @@
   					meshFrame.scale.x = 1.1 * image.width / 100;
   					meshFrame.scale.y = 1.1 * image.height / 100;
   					scene.add( meshFrame );
-  					
-  					
-  					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-  					meshWall.scale.x = 10 * image.width / 100;
-  					meshWall.scale.y = 2 * image.height / 100;
-  					scene.add( meshWall );
-  
+
   					var meshShadow = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true } ) );
   					meshShadow.position.y = -1.1 * image.height / 2;
   					meshShadow.position.z = -1.1 * image.height / 2;
@@ -149,6 +148,17 @@
   					scene.add( meshShadow );
   					*/
   					
+  					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshWall.scale.x = 10 * image.width / 100;
+  					meshWall.scale.y = 10 * image.height / 100;
+  					meshWall.position.x = x;
+  					meshWall.position.y = 50 + (image.height/100)/2;
+  					meshWall.position.z = z;
+  					meshWall.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( meshWall );
+  
+  				
+  					
     			};
     		  newimage.src = url;
   				var materialPainting = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting } );
@@ -156,17 +166,42 @@
 
   			}
 
+        var thumbs = [
+          "P1120961.JPG",
+          "P1120963.JPG",
+          "P1120969.JPG",
+          "P1120973.JPG",
+          "P1120983.JPG",
+          "P1190074.JPG",
+          "P1190076.JPG",
+          "P1190078.JPG",
+          "P1190084.JPG",
+          "P1190086.JPG",
+          "P1190088.JPG",
+          "P1190092.JPG",
+          "P1190095.JPG",
+          "P1190097.JPG",
+          "P1190099.JPG",
+          "P1190102.JPG",
+          "P1190106.JPG",
+          "PC308017.JPG",
+          "PC308019.JPG"
+          ];
 
-        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG", 0, 0, 0);
-        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG", -200, 0, 0);
-
-
-        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG", 0, -200, 0);
-        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG", -200, -200, 0);
+        for(i=0;i<thumbs.length;i++) {
+          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/thumbnail/public/" + thumbs[i], i*100 - (i%2)*100, (i%2)*400, (i%2)*180)
+        }
         
+    
+				var meshCeiling = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+				meshCeiling.scale.x = 200;
+				meshCeiling.scale.y = 1000;
+				meshCeiling.position.x = 100;
+				meshCeiling.position.y = 200;
+				meshCeiling.position.z = 500;
+				meshCeiling.rotation.x = 90 * (Math.PI / 180);
+				scene.add( meshCeiling );
 
-        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG", 0, 200, 0);
-        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG", -200, 200, 0);
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setClearColor( scene.fog.color );
@@ -177,9 +212,6 @@
 				renderer.domElement.style.position = "relative";
 				container.appendChild( renderer.domElement );
 
-				controls = new THREE.FirstPersonControls( camera );
-				controls.movementSpeed = 200;
-				controls.lookSpeed = 0.15;
 			
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	      window.addEventListener( 'resize', onWindowResize, false );
