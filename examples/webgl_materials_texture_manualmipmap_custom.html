@@ -23,13 +23,6 @@
 				z-index:100;
 			}
 
-			.lbl { color:#fff; font-size:16px; font-weight:bold; position: absolute; bottom:0px; z-index:100; text-shadow:#000 1px 1px 1px; background-color:rgba(0,0,0,0.85); padding:1em }
-			#lbl_left { text-align:left; left:0px }
-			#lbl_right { text-align:left; right:0px }
-
-			.g { color:#aaa }
-			.c { color:#fa0 }
-
 			a { color:red }
 
 		</style>
@@ -41,28 +34,11 @@
 			- painting by <a href="http://en.wikipedia.org/wiki/Basket_of_Fruit_%28Caravaggio%29">Caravaggio</a>
 		</div>
 
-		<div id="lbl_left" class="lbl">
-		Floor <span class="g">(128x128)</span><br/>
-		mag: <span class="c">Linear</span><br/>
-		min: <span class="c">LinearMipMapLinear</span><br/>
-		<br/>
-		Painting <span class="g">(748x600)</span><br/>
-		mag: <span class="c">Linear</span><br/>
-		min: <span class="c">Linear</span>
-		</div>
-
-		<div id="lbl_right" class="lbl">
-		Floor <br/>
-		mag: <span class="c">Nearest</span><br/>
-		min: <span class="c">NearestMipMapNearestFilter</span><br/>
-		<br/>
-		Painting <br/>
-		mag: <span class="c">Nearest</span><br/>
-		min: <span class="c">Nearest</span>
-		</div>
 
 		<script src="../build/three.min.js"></script>
 
+		<script src="js/controls/TrackballControls.js"></script>
+		
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 
@@ -75,7 +51,7 @@
 
 			var container, stats;
 
-			var camera, scene1, scene2, renderer;
+			var camera, scene1, renderer;
 
 			var mouseX = 0, mouseY = 0;
 
@@ -92,13 +68,12 @@
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
-				camera.position.z = 1500;
+				camera.position.z = 2000;
 
+			  controls = new THREE.TrackballControls( camera );
+			
 				scene1 = new THREE.Scene();
 				scene1.fog = new THREE.Fog( 0x000000, 1500, 4000 );
-
-				scene2 = new THREE.Scene();
-				scene2.fog = scene1.fog;
 
 				// GROUND
 
@@ -123,22 +98,16 @@
 				var textureCanvas1 = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
 				textureCanvas1.repeat.set( 1000, 1000 );
 				textureCanvas1.mipmaps[ 0 ] = canvas;
-				textureCanvas1.mipmaps[ 1 ] = mipmap( 64, '#0f0' );
-				textureCanvas1.mipmaps[ 2 ] = mipmap( 32, '#00f' );
-				textureCanvas1.mipmaps[ 3 ] = mipmap( 16, '#400' );
-				textureCanvas1.mipmaps[ 4 ] = mipmap( 8,  '#040' );
-				textureCanvas1.mipmaps[ 5 ] = mipmap( 4,  '#004' );
-				textureCanvas1.mipmaps[ 6 ] = mipmap( 2,  '#044' );
-				textureCanvas1.mipmaps[ 7 ] = mipmap( 1,  '#404' );
+				textureCanvas1.mipmaps[ 1 ] = mipmap( 64, '#fff' );
+				textureCanvas1.mipmaps[ 2 ] = mipmap( 32, '#fff' );
+				textureCanvas1.mipmaps[ 3 ] = mipmap( 16, '#fff' );
+				textureCanvas1.mipmaps[ 4 ] = mipmap( 8,  '#fff' );
+				textureCanvas1.mipmaps[ 5 ] = mipmap( 4,  '#fff' );
+				textureCanvas1.mipmaps[ 6 ] = mipmap( 2,  '#fff' );
+				textureCanvas1.mipmaps[ 7 ] = mipmap( 1,  '#fff' );
 				textureCanvas1.needsUpdate = true;
 
 				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas1 } );
-
-				var textureCanvas2 = textureCanvas1.clone();
-				textureCanvas2.magFilter = THREE.NearestFilter;
-				textureCanvas2.minFilter = THREE.NearestMipMapNearestFilter;
-				textureCanvas2.needsUpdate = true;
-				materialCanvas2 = new THREE.MeshBasicMaterial( { color: 0xffccaa, map: textureCanvas2 } );
 
 				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
@@ -146,9 +115,6 @@
 				meshCanvas1.rotation.x = -Math.PI / 2;
 				meshCanvas1.scale.set(1000, 1000, 1000);
 
-				var meshCanvas2 = new THREE.Mesh( geometry, materialCanvas2 );
-				meshCanvas2.rotation.x = -Math.PI / 2;
-				meshCanvas2.scale.set( 1000, 1000, 1000 );
 
 
 				// PAINTING
@@ -157,18 +123,12 @@
 
 					var image = texturePainting1.image;
 
-					texturePainting2.image = image;
-					texturePainting2.needsUpdate = true;
-
 					scene1.add( meshCanvas1 );
-					scene2.add( meshCanvas2 );
 
-					var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
+					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
 					var mesh1 = new THREE.Mesh( geometry, materialPainting1 );
-					var mesh2 = new THREE.Mesh( geometry, materialPainting2 );
 
 					addPainting( scene1, mesh1 );
-					addPainting( scene2, mesh2 );
 
 					function addPainting( zscene, zmesh ) {
 
@@ -199,7 +159,7 @@
 
 				};
         
-          
+        
   			function loadImage( path ) {
           //THREE.ImageUtils.crossOrigin = '';
   				var image = new Image();
@@ -212,14 +172,10 @@
   				return texture;
   
   			}
-  			 
-				//var texturePainting1 = loadImage("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG"),
+  			
 				var texturePainting1 = loadImage("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG");
-					texturePainting2 = new THREE.Texture(),
-					materialPainting1 = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting1 } ),
-					materialPainting2 = new THREE.MeshBasicMaterial( { color: 0xffccaa, map: texturePainting2 } );
-
-				texturePainting2.minFilter = texturePainting2.magFilter = THREE.NearestFilter;
+				var materialPainting1 = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting1 } );
+					
 				texturePainting1.minFilter = texturePainting1.magFilter = THREE.LinearFilter;
 
 
@@ -232,16 +188,19 @@
 				renderer.domElement.style.position = "relative";
 				container.appendChild( renderer.domElement );
 
-				stats = new Stats();
-				stats.domElement.style.position = 'absolute';
-				stats.domElement.style.top = '0px';
-				stats.domElement.style.zIndex = 100;
-				//container.appendChild( stats.domElement );
-
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+	      window.addEventListener( 'resize', onWindowResize, false );
 
-			}
+		}
 
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
 
 			function onDocumentMouseMove( event ) {
 
@@ -261,21 +220,9 @@
 			}
 
 			function render() {
-
-				camera.position.x += ( mouseX - camera.position.x ) * .05;
-				camera.position.y += ( -( mouseY - 200 ) - camera.position.y ) * .05;
-
-				camera.lookAt( scene1.position );
-
-				renderer.enableScissorTest( false );
-				renderer.clear();
-				renderer.enableScissorTest( true );
-
-				renderer.setScissor( 0, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT );
+			  
+			  controls.update();
 				renderer.render( scene1, camera );
-
-				renderer.setScissor( SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2 - 2, SCREEN_HEIGHT );
-				renderer.render( scene2, camera );
 
 			}
 
