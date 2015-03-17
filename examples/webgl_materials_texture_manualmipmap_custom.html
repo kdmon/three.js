@@ -64,11 +64,12 @@
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
 				camera.position.z = 400;
 				camera.position.x = 1200;
-				camera.position.y = 65;
+				camera.position.y = 90;
 				camera.rotation.y = (Math.PI*180)*0;
 
 				controls = new THREE.FirstPersonControls( camera );
 				controls.movementSpeed = 200;
+				controls.audio = true;
 				controls.lookSpeed = 0.10;
 	      controls.constrainVertical = true;
 	
@@ -120,7 +121,7 @@
 
 
   			function addPainting (url, x, z, rotation){
-  			  x = x*150;
+  			  x = x*200;
   			  z = z*800;
   				var newimage = new Image();
   			  newimage.crossOrigin="";
@@ -140,37 +141,18 @@
   					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
   					
-  					
-    				//var sphere = new THREE.SphereGeometry( 5, 16, 8 );
-    
-            /*
-    				var light1 = new THREE.PointLight( 0xffffff, 1, 200 );
-    				//light1.add( new THREE.Mesh( sphere, new THREE.MeshBasicMaterial( { color: 0xff0040 } ) ) );
-    				light1.position.z = z+90-rotation;
-    				light1.position.x = x;
-    				light1.position.y = 150;
-    				scene.add( light1 );
-    				*/
-  
-            /*
-  					var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-  					meshFrame.scale.x = 1.1 * image.width / 100;
-  					meshFrame.scale.y = 1.1 * image.height / 100;
-  					scene.add( meshFrame );
-            */
             
-  					var meshShadow = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true } ) );
-  					meshShadow.position.y = -1.1 * image.height / 2;
-  					meshShadow.position.z = -1.1 * image.height / 2;
-  					meshShadow.rotation.x = -Math.PI / 2;
-  					meshShadow.scale.x = 1.1 * image.width / 100;
-  					meshShadow.scale.y = 1.1 * image.height / 100;
-  					scene.add( meshShadow );
+  					var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshFrame.scale.x = scale/image.width * image.width/8  * (image.width/image.height)*1.05;
+  					meshFrame.scale.y = scale/image.height * image.height/8*1.05;
+  					meshFrame.position.x = x;
+  					meshFrame.position.y = 100 + 20*(scale/image.height);
+  					meshFrame.position.z = z;
+  					meshFrame.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( meshFrame );
   					
-  					//var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xdddddd, specular: 0x333333, shininess: 25, metal: false } );
-
   					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-  					meshWall.scale.x = 10 * image.width / 100;
+  					meshWall.scale.x = 20 * image.width / 100;
   					meshWall.scale.y = 20 * image.height / 100;
   					meshWall.position.x = x;
   					meshWall.position.y = 50 + (image.height/100)/2;
@@ -220,7 +202,7 @@
 				meshCeiling.scale.x = 200;
 				meshCeiling.scale.y = 1000;
 				meshCeiling.position.x = 100;
-				meshCeiling.position.y = 250;
+				meshCeiling.position.y = 350;
 				meshCeiling.position.z = 500;
 				meshCeiling.rotation.x = 90 * (Math.PI / 180);
 				scene.add( meshCeiling );
@@ -228,27 +210,25 @@
         var ambientLight = new THREE.AmbientLight( 0xeeeeee );
 				scene.add( ambientLight );
 				
-				var light1 = new THREE.PointLight( 0xffffff, 1, 200 );
+				var light1 = new THREE.PointLight( 0xffffff, 50, 200 );
 				light1.position.z = 400;
 				light1.position.x = 500;
 				light1.position.y = 150;
 				scene.add( light1 );
 				
 				
-				var light2 = new THREE.PointLight( 0xffffff, 1, 200 );
+				var light2 = new THREE.PointLight( 0xffffff, 50, 200 );
 				light2.position.z = 400;
 				light2.position.x = 1500;
 				light2.position.y = 150;
 				scene.add( light2 );
 				
 				
-				var light3 = new THREE.PointLight( 0xffffff, 1, 200 );
+				var light3 = new THREE.PointLight( 0xffffff, 50, 200 );
 				light3.position.z = 400;
 				light3.position.x = 2500;
 				light3.position.y = 150;
 				scene.add( light3 );
-
-
 
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
