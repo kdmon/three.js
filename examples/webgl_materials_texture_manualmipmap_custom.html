@@ -16,28 +16,17 @@
 				overflow: hidden;
 			}
 
-			#info {
-				position: absolute;
-				top: 0px; width: 100%;
-				padding: 5px;
-				z-index:100;
-			}
-
-			a { color:red }
 
 		</style>
 	</head>
 
 	<body>
-		<div id="info">
-			<a href="http://threejs.org" target="_blank">three.js</a> - texture manual mipmapping example
-			- painting by <a href="http://en.wikipedia.org/wiki/Basket_of_Fruit_%28Caravaggio%29">Caravaggio</a>
-		</div>
 
 
 		<script src="../build/three.min.js"></script>
 
-		<script src="js/controls/TrackballControls.js"></script>
+
+		<script src="js/controls/FirstPersonControls.js"></script>
 		
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
@@ -51,13 +40,15 @@
 
 			var container, stats;
 
-			var camera, scene1, renderer;
+			var camera, scene, renderer;
 
 			var mouseX = 0, mouseY = 0;
 
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 
+			var clock = new THREE.Clock();
+			
 			init();
 			animate();
 
@@ -68,14 +59,15 @@
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
-				camera.position.z = 2000;
+				camera.position.z = 500;
+				camera.position.x = -100;
+				camera.position.y = 100;
+				camera.rotation.y = 0;
 
-			  controls = new THREE.TrackballControls( camera );
-			
-				scene1 = new THREE.Scene();
-				scene1.fog = new THREE.Fog( 0x000000, 1500, 4000 );
+				scene = new THREE.Scene();
+				scene.fog = new THREE.Fog( 0x000000, 1500, 4000 );
 
-				// GROUND
+				// FLOOR
 
 				function mipmap( size, color ) {
 
@@ -94,93 +86,90 @@
 
 				}
 
-				var canvas = mipmap( 128, '#f00' );
-				var textureCanvas1 = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
-				textureCanvas1.repeat.set( 1000, 1000 );
-				textureCanvas1.mipmaps[ 0 ] = canvas;
-				textureCanvas1.mipmaps[ 1 ] = mipmap( 64, '#fff' );
-				textureCanvas1.mipmaps[ 2 ] = mipmap( 32, '#fff' );
-				textureCanvas1.mipmaps[ 3 ] = mipmap( 16, '#fff' );
-				textureCanvas1.mipmaps[ 4 ] = mipmap( 8,  '#fff' );
-				textureCanvas1.mipmaps[ 5 ] = mipmap( 4,  '#fff' );
-				textureCanvas1.mipmaps[ 6 ] = mipmap( 2,  '#fff' );
-				textureCanvas1.mipmaps[ 7 ] = mipmap( 1,  '#fff' );
-				textureCanvas1.needsUpdate = true;
+				var canvas = mipmap( 128, '#000' );
+				var textureCanvas = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
+				textureCanvas.repeat.set( 1000, 1000 );
+				textureCanvas.mipmaps[ 0 ] = canvas;
+				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#fff' );
+				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#fff' );
+				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#fff' );
+				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#fff' );
+				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#fff' );
+				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#fff' );
+				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#fff' );
+				textureCanvas.needsUpdate = true;
 
-				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas1 } );
+				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas } );
 
 				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
-				var meshCanvas1 = new THREE.Mesh( geometry, materialCanvas1 );
-				meshCanvas1.rotation.x = -Math.PI / 2;
-				meshCanvas1.scale.set(1000, 1000, 1000);
+				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
+				meshCanvas.rotation.x = -Math.PI / 2;
+				meshCanvas.scale.set(1000, 1000, 1000);
+				meshCanvas.position.y = 0;
+				scene.add( meshCanvas );
 
 
 
-				// PAINTING
-
-				var callbackPainting = function () {
-
-					var image = texturePainting1.image;
-
-					scene1.add( meshCanvas1 );
-
-					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
-					var mesh1 = new THREE.Mesh( geometry, materialPainting1 );
-
-					addPainting( scene1, mesh1 );
-
-					function addPainting( zscene, zmesh ) {
-
-						zmesh.scale.x = image.width / 100;
-						zmesh.scale.y = image.height / 100;
-
-						zscene.add( zmesh );
-
-						var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-						meshFrame.scale.x = 1.1 * image.width / 100;
-						meshFrame.scale.y = 1.1 * image.height / 100;
-
-						zscene.add( meshFrame );
-
-						var meshShadow = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true } ) );
-						meshShadow.position.y = -1.1 * image.height / 2;
-						meshShadow.position.z = -1.1 * image.height / 2;
-						meshShadow.rotation.x = -Math.PI / 2;
-						meshShadow.scale.x = 1.1 * image.width / 100;
-						meshShadow.scale.y = 1.1 * image.height / 100;
-						zscene.add( meshShadow );
-
-						var floorHeight = -1.117 * image.height / 2;
-						meshCanvas1.position.y = meshCanvas2.position.y = floorHeight;
-
-					}
-
-
-				};
-        
-        
-  			function loadImage( path ) {
-          //THREE.ImageUtils.crossOrigin = '';
-  				var image = new Image();
-  				image.crossOrigin="";
-  				
-  				var texture = new THREE.Texture( image, THREE.UVMapping );
-  				image.onload = function () {texture.needsUpdate = true; callbackPainting();};
-  				image.src = path;
+  			function addPainting (url, x, z, rotation){
+  				var newimage = new Image();
+  			  newimage.crossOrigin="";
+  				var texturePainting = new THREE.Texture( newimage, THREE.UVMapping );
+  				newimage.onload = function () {
+  				  texturePainting.needsUpdate = true;
+  					var image = texturePainting.image;
+  					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
+  					var mesh = new THREE.Mesh( geometry, materialPainting);
+  					mesh.scale.x = image.width / 100;
+  					mesh.scale.y = image.height / 100;
+  					mesh.position.x = x;
+  					mesh.position.y = 50 + (image.height/100)/2;
+  					mesh.position.z = z;
+  					mesh.rotation.x = rotation * (Math.PI / 180);
+  					scene.add( mesh );
   
-  				return texture;
+            /*
+  					var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshFrame.scale.x = 1.1 * image.width / 100;
+  					meshFrame.scale.y = 1.1 * image.height / 100;
+  					scene.add( meshFrame );
+  					
+  					
+  					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshWall.scale.x = 10 * image.width / 100;
+  					meshWall.scale.y = 2 * image.height / 100;
+  					scene.add( meshWall );
   
+  					var meshShadow = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true } ) );
+  					meshShadow.position.y = -1.1 * image.height / 2;
+  					meshShadow.position.z = -1.1 * image.height / 2;
+  					meshShadow.rotation.x = -Math.PI / 2;
+  					meshShadow.scale.x = 1.1 * image.width / 100;
+  					meshShadow.scale.y = 1.1 * image.height / 100;
+  					scene.add( meshShadow );
+  					*/
+  					
+    			};
+    		  newimage.src = url;
+  				var materialPainting = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting } );
+  				texturePainting.minFilter = texturePainting.magFilter = THREE.LinearFilter;
+
   			}
-  			
-				var texturePainting1 = loadImage("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG");
-				var materialPainting1 = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting1 } );
-					
-				texturePainting1.minFilter = texturePainting1.magFilter = THREE.LinearFilter;
 
+
+        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG", 0, 0, 0);
+        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG", -200, 0, 0);
+
+
+        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG", 0, -200, 0);
+        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG", -200, -200, 0);
+        
+
+        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG", 0, 200, 0);
+        addPainting("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG", -200, 200, 0);
 
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
-				renderer.setClearColor( scene1.fog.color );
+				renderer.setClearColor( scene.fog.color );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.autoClear = false;
@@ -188,6 +177,10 @@
 				renderer.domElement.style.position = "relative";
 				container.appendChild( renderer.domElement );
 
+				controls = new THREE.FirstPersonControls( camera );
+				controls.movementSpeed = 200;
+				controls.lookSpeed = 0.15;
+			
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 	      window.addEventListener( 'resize', onWindowResize, false );
 
@@ -197,6 +190,8 @@
 
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
+
+			controls.handleResize();
 
 			renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -215,14 +210,17 @@
 				requestAnimationFrame( animate );
 
 				render();
-				stats.update();
 
 			}
 
 			function render() {
 			  
-			  controls.update();
-				renderer.render( scene1, camera );
+				var delta = clock.getDelta(),
+					time = clock.getElapsedTime() * 5;
+				controls.update( delta );
+        
+				
+				renderer.render( scene, camera );
 
 			}
 
