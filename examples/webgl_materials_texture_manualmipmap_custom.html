@@ -201,23 +201,24 @@
         
           
   			function loadImage( path ) {
-  
-  				var image = document.createElement( 'img' );
-  				var texture = new THREE.Texture( image, THREE.UVMapping )
-  
-  				image.onload = function () { texture.needsUpdate = true; callbackPainting();};
+          //THREE.ImageUtils.crossOrigin = '';
+  				var image = new Image();
+  				image.crossOrigin="";
+  				
+  				var texture = new THREE.Texture( image, THREE.UVMapping );
+  				image.onload = function () {texture.needsUpdate = true; callbackPainting();};
   				image.src = path;
   
   				return texture;
   
   			}
-  			
-				var texturePainting1 = loadImage("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG"),
+  			 
+				//var texturePainting1 = loadImage("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190078.JPG"),
+				var texturePainting1 = loadImage("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/P1190074.JPG");
 					texturePainting2 = new THREE.Texture(),
 					materialPainting1 = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting1 } ),
 					materialPainting2 = new THREE.MeshBasicMaterial( { color: 0xffccaa, map: texturePainting2 } );
 
-        texturePainting1.needsUpdate = true;
 				texturePainting2.minFilter = texturePainting2.magFilter = THREE.NearestFilter;
 				texturePainting1.minFilter = texturePainting1.magFilter = THREE.LinearFilter;
 
