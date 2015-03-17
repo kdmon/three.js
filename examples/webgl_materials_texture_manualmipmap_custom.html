@@ -11,7 +11,7 @@
 				font-size:13px;
 				text-align:center;
 
-				background-color: #fff;
+				background-color: #aaa;
 				margin: 0px;
 				overflow: hidden;
 			}
@@ -61,8 +61,8 @@
 				document.body.appendChild( container );
 
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
-				camera.position.z = 200;
-				camera.position.x = -250;
+				camera.position.z = 400;
+				camera.position.x = 1200;
 				camera.position.y = 65;
 				camera.rotation.y = (Math.PI*180)*0;
 
@@ -72,7 +72,7 @@
 	      controls.constrainVertical = true;
 	
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0x000000, 1500, 4000 );
+				scene.fog = new THREE.Fog( 0xaaaaaa, 1000, 2500 );
 
 				// FLOOR
 
@@ -83,7 +83,7 @@
 
 					imageCanvas.width = imageCanvas.height = size;
 
-					context.fillStyle = "#444";
+					context.fillStyle = "#fff";
 					context.fillRect( 0, 0, size, size );
 
 					context.fillStyle = color;
@@ -112,13 +112,15 @@
 
 				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
 				meshCanvas.rotation.x = -Math.PI / 2;
-				meshCanvas.scale.set(255, 255, 255);
+				meshCanvas.scale.set(400, 400, 400);
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
 
 
   			function addPainting (url, x, z, rotation){
+  			  x = x*150;
+  			  z = z*800;
   				var newimage = new Image();
   			  newimage.crossOrigin="";
   				var texturePainting = new THREE.Texture( newimage, THREE.UVMapping );
@@ -129,10 +131,10 @@
   					var mesh = new THREE.Mesh( geometry, materialPainting);
   					var scalingfactor = scale/image.width;
   					
-  					mesh.scale.x = scale/image.width * image.width/10  * (image.width/image.height);
-  					mesh.scale.y = scale/image.height * image.height/10;
+  					mesh.scale.x = scale/image.width * image.width/8  * (image.width/image.height);
+  					mesh.scale.y = scale/image.height * image.height/8;
   					mesh.position.x = x;
-  					mesh.position.y = 80 + 20*(scale/image.height);
+  					mesh.position.y = 100 + 20*(scale/image.height);
   					mesh.position.z = z;
   					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
@@ -142,7 +144,8 @@
   					meshFrame.scale.x = 1.1 * image.width / 100;
   					meshFrame.scale.y = 1.1 * image.height / 100;
   					scene.add( meshFrame );
-
+            */
+            
   					var meshShadow = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true } ) );
   					meshShadow.position.y = -1.1 * image.height / 2;
   					meshShadow.position.z = -1.1 * image.height / 2;
@@ -150,11 +153,11 @@
   					meshShadow.scale.x = 1.1 * image.width / 100;
   					meshShadow.scale.y = 1.1 * image.height / 100;
   					scene.add( meshShadow );
-  					*/
+  					
   					
   					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
   					meshWall.scale.x = 10 * image.width / 100;
-  					meshWall.scale.y = 10 * image.height / 100;
+  					meshWall.scale.y = 20 * image.height / 100;
   					meshWall.position.x = x;
   					meshWall.position.y = 50 + (image.height/100)/2;
   					meshWall.position.z = z;
@@ -193,26 +196,26 @@
           ];
 
         for(i=0;i<thumbs.length;i++) {
-          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/large/public/" + thumbs[i], i*100 - (i%2)*100, (i%2)*400, (i%2)*180)
+          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/thumbnail/public/" + thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
         }
         
     
-				var meshCeiling = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+				var meshCeiling = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xeeeeee, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
 				meshCeiling.scale.x = 200;
 				meshCeiling.scale.y = 1000;
 				meshCeiling.position.x = 100;
-				meshCeiling.position.y = 200;
+				meshCeiling.position.y = 250;
 				meshCeiling.position.z = 500;
 				meshCeiling.rotation.x = 90 * (Math.PI / 180);
 				scene.add( meshCeiling );
 
 
-				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 				renderer.setClearColor( scene.fog.color );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.autoClear = false;
-
+				renderer.setClearColor( 0xffffff, 1);
 				renderer.domElement.style.position = "relative";
 				container.appendChild( renderer.domElement );
 
