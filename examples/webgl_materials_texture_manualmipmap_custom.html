@@ -127,26 +127,29 @@
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
-        function addText (sentence, x, y, z){
+        function addText (sentence, x, y, z, rotation){
                   
         	// add 3D text
-        	var materialFront = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
-        	var materialSide = new THREE.MeshBasicMaterial( { color: 0x000088 } );
+        	var materialFront = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+        	var materialSide = new THREE.MeshBasicMaterial( { color: 0x000000 } );
         	var materialArray = [ materialFront, materialSide ];
         	var textGeom = new THREE.TextGeometry( sentence, 
         	{
-        		size: 30, height: 4, curveSegments: 3,
+        		size: 2, height: 0, curveSegments: 1,
         		font: "droid sans", weight: "normal", style: "normal",
-        		bevelThickness: 1, bevelSize: 2, bevelEnabled: true,
-        		material: 0, extrudeMaterial: 1
+        		bevelThickness: 0, bevelSize: 0, bevelEnabled: false,
+        		material: 0, extrudeMaterial: 0
         	});
         	
         	var textMaterial = new THREE.MeshFaceMaterial(materialArray);
         	var textMesh = new THREE.Mesh(textGeom, textMaterial );
         	
         	textMesh.position.set(x,y,z);
+        	textMesh.rotation.y = rotation * (Math.PI/180);
         	scene.add(textMesh);
         }
+        
+        
 
   			function addPainting (url, x, z, rotation){
   			  x = x*200;
@@ -161,8 +164,18 @@
   					var mesh = new THREE.Mesh( geometry, materialPainting);
   					var scalingfactor = scale/image.width;
   					
-  					addText(url, x, 15,z);
+  					addText("Untitled", x+ 100, 75,z+2, rotation);
+  					addText("2015", x+ 100, 70,z+2, rotation);
   					
+  					var meshLabel = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xffffff, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshLabel.scale.x = 2.2;
+  					meshLabel.scale.y = 2.2;
+  					meshLabel.position.x = x+105;
+  					meshLabel.position.y = 75;
+  					meshLabel.position.z = z+1;
+  					meshLabel.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( meshLabel );
+
   					mesh.scale.x = scale/image.width * image.width/8  * (image.width/image.height);
   					mesh.scale.y = scale/image.height * image.height/8;
   					mesh.position.x = x;
