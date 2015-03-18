@@ -6,11 +6,10 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
 			body {
-				color: #aaa;
+				color: #ccc;
 				font-family:Monospace;
 				font-size:13px;
 				text-align:center;
-
 				background-color: #ccc;
 				margin: 0px;
 				overflow: hidden;
@@ -45,7 +44,7 @@
       
 			var container, stats;
 
-			var camera, scene, groundMirror, renderer;
+			var camera, controls, scene, groundMirror, renderer;
 
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
@@ -68,20 +67,20 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
+				camera = new THREE.PerspectiveCamera( 45, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000 );
 				camera.position.z = 400;
 				camera.position.x = 1200;
 				camera.position.y = 105;
 				camera.rotation.y = (Math.PI*180)*0;
 
 				controls = new THREE.FirstPersonControls( camera );
-				controls.movementSpeed = 500;
+				controls.movementSpeed = 300;
 				controls.audio = true;
 				controls.lookSpeed = 0.10;
 				controls.lookVertical = false;
 	
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0xcccccc, 500, 5500 );
+				scene.fog = new THREE.Fog( 0xcccccc, 19000, 20000 );
 
 				// FLOOR
         
@@ -115,7 +114,7 @@
 				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#ccc' );
 				textureCanvas.needsUpdate = true;
 
-				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.5 });
+				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.35 });
 
 				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
@@ -298,17 +297,35 @@
           addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
         }
         
-    		var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x333333, shininess: 25, metal: false } );
+        
+    
+				var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+				meshWall.scale.x = 20;
+				meshWall.scale.y = 10;
+				meshWall.position.x = -400;
+				meshWall.position.y = 0
+				meshWall.position.z = 100
+				meshWall.rotation.y = 90 * (Math.PI / 180);
+				scene.add( meshWall );
+				
+				
+				meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+				meshWall.scale.x = 20;
+				meshWall.scale.y = 10;
+				meshWall.position.x = 16500;
+				meshWall.position.y = 0
+				meshWall.position.z = 100
+				meshWall.rotation.y = -90 * (Math.PI / 180);
+				scene.add( meshWall );
 
 				
-//				var meshCeiling = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xeeeeee, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-
+    		var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xeeeeee, specular: 0x333333, shininess: 25, metal: false } );
 				var meshCeiling = new THREE.Mesh( geometry, meshMaterial);
 				meshCeiling.scale.x = 200;
 				meshCeiling.scale.y = 8;
 				meshCeiling.scale.z = 100;
 				meshCeiling.position.x = 8000;
-				meshCeiling.position.y = 490;
+				meshCeiling.position.y = 300;
 				meshCeiling.position.z = 400;
 				meshCeiling.rotation.x = 90 * (Math.PI / 180);
 				scene.add( meshCeiling );
@@ -318,20 +335,20 @@
         var ambientLight = new THREE.AmbientLight(ambientColor.getHex());
 				scene.add( ambientLight );
 				
-				for (i = 0; i<20;i++) {
-  				var light = new THREE.PointLight( 0xffffaa, 10, 200 );
+				for (i = 0; i<10;i++) {
+  				var light = new THREE.PointLight( 0xffffaa, 10, 300 );
   				light.position.z = 400;
-  				light.position.x = (1200*i+1);
-  				light.position.y = 450;
+  				light.position.x = (2500*i+1);
+  				light.position.y = 200;
   				scene.add( light );
 				}
 
-				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-				renderer.setClearColor( scene.fog.color );
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+				renderer.autoClear = true;
+				//renderer.setClearColor( 0xcccccc, 1);
+				renderer.setClearColor( scene.fog.color,1 );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
-				renderer.autoClear = false;
-				renderer.setClearColor( 0xffffff, 1);
 				renderer.domElement.style.position = "relative";
 				container.appendChild( renderer.domElement );
 
