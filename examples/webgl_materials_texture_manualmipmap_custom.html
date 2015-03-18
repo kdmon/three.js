@@ -75,7 +75,7 @@
 				camera.rotation.y = (Math.PI*180)*0;
 
 				controls = new THREE.FirstPersonControls( camera );
-				controls.movementSpeed = 300;
+				controls.movementSpeed = 1300;
 				controls.audio = true;
 				controls.lookSpeed = 0.10;
 				controls.lookVertical = false;
@@ -121,7 +121,7 @@
 
 				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
 				meshCanvas.rotation.x = -Math.PI / 2;
-				meshCanvas.scale.set(512, 512, 512);
+				meshCanvas.scale.set(400, 400, 400);
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
@@ -295,7 +295,7 @@
           ];
 
         for(i=0;i<thumbs.length;i++) {
-          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/large/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
+          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
         }
         
     		var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x333333, shininess: 25, metal: false } );
@@ -305,37 +305,26 @@
 
 				var meshCeiling = new THREE.Mesh( geometry, meshMaterial);
 				meshCeiling.scale.x = 200;
-				meshCeiling.scale.y = 1024;
-				meshCeiling.scale.z = 1024;
-				meshCeiling.position.x = 100;
-				meshCeiling.position.y = 400;
-				meshCeiling.position.z = 500;
+				meshCeiling.scale.y = 8;
+				meshCeiling.scale.z = 100;
+				meshCeiling.position.x = 8000;
+				meshCeiling.position.y = 490;
+				meshCeiling.position.z = 400;
 				meshCeiling.rotation.x = 90 * (Math.PI / 180);
 				scene.add( meshCeiling );
-
-        var ambientLight = new THREE.AmbientLight( 0xeeeeee );
+				
+        
+        var ambientColor = new THREE.Color(0.8, 0.8, 0.8);
+        var ambientLight = new THREE.AmbientLight(ambientColor.getHex());
 				scene.add( ambientLight );
 				
-				var light1 = new THREE.PointLight( 0xffffff, 50, 200 );
-				light1.position.z = 400;
-				light1.position.x = 500;
-				light1.position.y = 250;
-				scene.add( light1 );
-				
-				
-				var light2 = new THREE.PointLight( 0xffffff, 50, 200 );
-				light2.position.z = 400;
-				light2.position.x = 1500;
-				light2.position.y = 250;
-				scene.add( light2 );
-				
-				
-				var light3 = new THREE.PointLight( 0xffffff, 50, 200 );
-				light3.position.z = 400;
-				light3.position.x = 2500;
-				light3.position.y = 250;
-				scene.add( light3 );
-
+				for (i = 0; i<20;i++) {
+  				var light = new THREE.PointLight( 0xffffaa, 10, 200 );
+  				light.position.z = 400;
+  				light.position.x = (1200*i+1);
+  				light.position.y = 450;
+  				scene.add( light );
+				}
 
 				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 				renderer.setClearColor( scene.fog.color );
@@ -352,10 +341,11 @@
 				
 				var mirrorMesh = new THREE.Mesh( geometry, groundMirror.material );
 				mirrorMesh.scale.x=200;
-				mirrorMesh.scale.y=1000;
-				mirrorMesh.position.x = 100;
+				mirrorMesh.scale.y=8;
+				meshCeiling.scale.z = 100;
+				mirrorMesh.position.x = 8000;
 				mirrorMesh.position.y = -1;
-				mirrorMesh.position.z = 500;
+				mirrorMesh.position.z = 400;
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
 				scene.add( mirrorMesh );
