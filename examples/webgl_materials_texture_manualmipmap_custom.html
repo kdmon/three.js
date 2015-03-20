@@ -28,6 +28,7 @@
 		<script src="js/Mirror.js"></script>
 		<script src="js/controls/FirstPersonControls.js"></script>
 		
+		<script src="js/loaders/ColladaLoader.js"></script>
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 
@@ -42,7 +43,7 @@
 
       var scale = 100;
       
-			var container, stats;
+			var container, stats, dae;
 
 			var camera, controls, scene, groundMirror, renderer;
 
@@ -67,11 +68,12 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 45, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000 );
+				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000 );
 				camera.position.z = 400;
 				camera.position.x = 1200;
-				camera.position.y = 105;
+				camera.position.y = 150;
 				camera.rotation.y = (Math.PI*180)*0;
+				
 
 				controls = new THREE.FirstPersonControls( camera );
 				controls.movementSpeed = 300;
@@ -79,6 +81,7 @@
 				controls.lookSpeed = 0.10;
 				controls.lookVertical = false;
 	
+
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xcccccc, 19000, 20000 );
 
@@ -149,7 +152,7 @@
         
 
   			function addPainting (url, name, x, z, rotation){
-  			  x = x*200;
+  			  x = x*250;
   			  z = z*800;
   				var newimage = new Image();
   			  newimage.crossOrigin="";
@@ -175,19 +178,19 @@
   					scene.add( meshLabel );
   					*/
 
-  					mesh.scale.x = scale/image.width * image.width/8  * (image.width/image.height);
-  					mesh.scale.y = scale/image.height * image.height/8;
+  					mesh.scale.x = scale/image.width * image.width/5  * (image.width/image.height);
+  					mesh.scale.y = scale/image.height * image.height/5;
   					mesh.position.x = x;
-  					mesh.position.y = 100 + 20*(scale/image.height);
+  					mesh.position.y = 160 + 20*(scale/image.height);
   					mesh.position.z = z;
   					mesh.rotation.y = rotation * (Math.PI / 180);
   					scene.add( mesh );
   					
   					var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-  					meshFrame.scale.x = scale/image.width * image.width/8  * (image.width/image.height)*1.05;
-  					meshFrame.scale.y = scale/image.height * image.height/8*1.05;
+  					meshFrame.scale.x = scale/image.width * image.width/5  * (image.width/image.height)*1.05;
+  					meshFrame.scale.y = scale/image.height * image.height/5*1.05;
   					meshFrame.position.x = x;
-  					meshFrame.position.y = 100 + 20*(scale/image.height);
+  					meshFrame.position.y = 160 + 20*(scale/image.height);
   					meshFrame.position.z = z;
   					meshFrame.rotation.y = rotation * (Math.PI / 180);
   					scene.add( meshFrame );
@@ -336,7 +339,7 @@
 				scene.add( ambientLight );
 				
 				for (i = 0; i<10;i++) {
-  				var light = new THREE.PointLight( 0xffffff, 10, 300 );
+  				var light = new THREE.PointLight( 0xffffff, 5, 300 );
   				light.position.z = 400;
   				light.position.x = (2500*i+1);
   				light.position.y = 200;
@@ -369,7 +372,34 @@
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
-        setTimeout(function (){},5000)
+
+				var loader = new THREE.ColladaLoader();
+				loader.load( "./models/collada/avatar.dae", function ( collada ) {
+				
+
+            dae = collada.scene;
+            dae.scale.x = dae.scale.y = dae.scale.z = 100;
+            dae.rotation.x = -90 * (Math.PI/180)
+            dae.rotation.z = 90 * (Math.PI/180)
+            dae.position.z = 400;
+					collada.scene.traverse( function ( child ) {
+
+						if ( child instanceof THREE.SkinnedMesh ) {
+
+							var animation = new THREE.Animation( child, child.geometry.animation );
+							animation.play();
+
+							camera.lookAt( child.position );
+
+						}
+
+					} );
+
+					scene.add( collada.scene );
+
+				} );
+
+
 		}
 
 		function onWindowResize() {
@@ -388,6 +418,7 @@
 			function animate() {
 
 				requestAnimationFrame( animate );
+				dae.position.x += 10;
 
 				render();
 
@@ -398,6 +429,7 @@
 				var delta = clock.getDelta(),
 					time = clock.getElapsedTime() * 5;
 				controls.update( delta );
+				THREE.AnimationHandler.update(delta);
 				groundMirror.render();
 				renderer.render( scene, camera );
 
