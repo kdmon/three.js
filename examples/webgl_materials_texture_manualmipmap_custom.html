@@ -71,7 +71,7 @@
 				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000 );
 				camera.position.z = 400;
 				camera.position.x = 1200;
-				camera.position.y = 150;
+				camera.position.y = 162;
 				camera.rotation.y = (Math.PI*180)*0;
 				
 
@@ -315,7 +315,7 @@
 				meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
 				meshWall.scale.x = 20;
 				meshWall.scale.y = 10;
-				meshWall.position.x = 16500;
+				meshWall.position.x = 20000;
 				meshWall.position.y = 0
 				meshWall.position.z = 100
 				meshWall.rotation.y = -90 * (Math.PI / 180);
@@ -324,7 +324,7 @@
 				
     		var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xeeeeee, specular: 0xffffff, shininess: 0, metal: false } );
 				var meshCeiling = new THREE.Mesh( geometry, meshMaterial);
-				meshCeiling.scale.x = 200;
+				meshCeiling.scale.x = 240;
 				meshCeiling.scale.y = 8;
 				meshCeiling.scale.z = 100;
 				meshCeiling.position.x = 8000;
@@ -360,7 +360,7 @@
 				groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: SCREEN_WIDTH, textureHeight: SCREEN_HEIGHT, color: 0xcccccc} );
 				
 				var mirrorMesh = new THREE.Mesh( geometry, groundMirror.material );
-				mirrorMesh.scale.x=200;
+				mirrorMesh.scale.x=240;
 				mirrorMesh.scale.y=8;
 				meshCeiling.scale.z = 100;
 				mirrorMesh.position.x = 8000;
@@ -372,34 +372,40 @@
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
-
-				var loader = new THREE.ColladaLoader();
-				loader.load( "./models/collada/avatar.dae", function ( collada ) {
-				
-
+        function addPerson(z,x,rotation, animate) {
+  				var loader = new THREE.ColladaLoader();
+  				loader.load( "./models/collada/avatar.dae", function ( collada ) {
+  
             dae = collada.scene;
-            dae.scale.x = dae.scale.y = dae.scale.z = 100;
-            dae.rotation.x = -90 * (Math.PI/180)
-            dae.rotation.z = 90 * (Math.PI/180)
-            dae.position.z = 400;
-					collada.scene.traverse( function ( child ) {
-
-						if ( child instanceof THREE.SkinnedMesh ) {
-
-							var animation = new THREE.Animation( child, child.geometry.animation );
-							animation.play();
-
-							camera.lookAt( child.position );
-
-						}
-
-					} );
-
-					scene.add( collada.scene );
-
-				} );
-
-
+            dae.scale.x = dae.scale.y = dae.scale.z = 105;
+            dae.rotation.x = -90 * (Math.PI/180);
+            dae.rotation.z = rotation * (Math.PI/180);
+            dae.position.z = z;
+            dae.position.x = x;
+  					collada.scene.traverse( function ( child ) {
+  
+  						if ( child instanceof THREE.SkinnedMesh ) {
+  
+  							var animation = new THREE.Animation( child, child.geometry.animation );
+  							if (animate) animation.play();
+  
+  							camera.lookAt( child.position );
+  
+  						}
+  
+  					} );
+  
+  					scene.add( collada.scene );
+  
+  				} );
+        }
+        
+        addPerson (200, 500, 180);
+        addPerson (600, 2500, 0);
+        addPerson (200, 8000, 180);
+        addPerson (500, 12000, 0);
+        addPerson (400, 400, 90, 1);
+        
 		}
 
 		function onWindowResize() {
@@ -419,7 +425,6 @@
 
 				requestAnimationFrame( animate );
 				dae.position.x += 10;
-
 				render();
 
 			}
