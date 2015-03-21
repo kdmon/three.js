@@ -30038,8 +30038,8 @@ THREE.Animation.prototype = {
 
 				var type = this.keyTypes[ t ];
 
-				var prevKey = this.data.hierarchy[ h ].keys[ 0 ];
-				var nextKey = this.getNextKeyWith( type, h, 1 );
+				var prevKey = this.data.hierarchy[ h ].keys[ this.endFrame-1 ];
+				var nextKey = this.getNextKeyWith( type, h, this.startFrame );
 
 				while ( nextKey.time < this.currentTime && nextKey.index > prevKey.index ) {
 
@@ -30139,7 +30139,7 @@ THREE.Animation.prototype = {
 			//
 
 			var duration = this.data.length;
-			duration = 1.2;
+			duration = (this.endFrame-this.startFrame)/this.fps;
 
 			if ( this.currentTime > duration || this.currentTime < 0 ) {
 
