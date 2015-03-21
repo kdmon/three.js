@@ -51,6 +51,8 @@
 
 			var clock = new THREE.Clock();
 			
+      var objectArray = [];
+			
 			init();
 			animate();
 
@@ -371,6 +373,7 @@
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
+        
         function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, fps) {
   				var loader = new THREE.ColladaLoader();
   				loader.load( url, function ( collada ) {
@@ -381,19 +384,40 @@
             dae.rotation.z = rotation * (Math.PI/180);
             dae.position.z = z;
             dae.position.x = x;
+            
+            objectArray.push(dae);
+            
   					collada.scene.traverse( function ( child ) {
   
   						if ( child instanceof THREE.SkinnedMesh && (animate == true)) {
   
   							var animation = new THREE.Animation( child, child.geometry.animation);
-  							animation.play(keystart, keystop, fps);
-  
+  							
+  							/*
+    							STARt WALK - 0-10
+    							WALKCYCLE - 10-31
+                  LOOK - 35-55
+                  JUMP - 55-80
+                  SIT DOWN - 110-120
+                  SIT UP - 120-128
+                  GREET/WAVE - 128-200
+  							*/
+  							
+  							animation.play(10/24,31/24);
+  							
+  							/*
+  					    setTimeout(function() {animation.play(25/24,55/24);}, 5000);
+  					    setTimeout(function() {animation.play(55/24,80/24);}, 10000);
+  					    setTimeout(function() {animation.play(110/24,120/24);}, 12000);
+  					    setTimeout(function() {animation.play(120/24,121/24);}, 12200);
+  					    setTimeout(function() {animation.play(120/24,128/24);}, 15000);
+  					    setTimeout(function() {animation.play(129/24,200/24);}, 15200);
+  					    */
   						}
   
   					} );
   
   					scene.add( collada.scene );
-  					setInterval(function() {dae.position.x -= 3;}, 50)
   
   				} );
         }
@@ -403,8 +427,16 @@
         addPerson ("./models/collada/avatar.dae", 105, 500, 12000, 0);
         */
         
-        addPerson ("./models/collada/female2.dae", 100, 400, 1800, -90, 1, 9, 30, 24);
-        addPerson ("./models/collada/avatar.dae", 105, 400, 1400, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/female2.dae", 100, 300, 2800, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/female2.dae", 105, 500, 5600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 110, 200, 7600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 105, 600, 4600, -90, 1, 9, 30, 24);
+        
+        
+        addPerson ("./models/collada/female2.dae", 105, 300, 12800, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/female2.dae", 100, 600, 14600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 105, 500, 15600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 110, 200, 17600, -90, 1, 9, 30, 24);
         
           /*
   			function ensureLoop( animation ) {
@@ -488,12 +520,13 @@
 
 		}
 
-
-
 			function animate() {
 				requestAnimationFrame( animate );
+				for (i=1;i<objectArray.length;i++){
+				  objectArray[i-1].position.x -=5;
+				  if (objectArray[i-1].position.x<-10) objectArray[i-1].position.x = 22000;
+				}
 				render();
-
 			}
 
 			function render() {
