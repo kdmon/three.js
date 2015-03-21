@@ -29976,7 +29976,7 @@ THREE.Animation.prototype = {
 
 	play: function (startFrame, endFrame, fps, startTime, weight) {
 	  this.startFrame = startFrame !== undefined ? startFrame : 0;
-	  this.endFrame = endFrame !== undefined ? startFrame : 0;
+	  this.endFrame = endFrame !== undefined ? endFrame : 0;
 	  this.fps = fps !== undefined ? fps : 24;
 
 		this.currentTime = startTime !== undefined ? startTime : 0;
@@ -30139,6 +30139,7 @@ THREE.Animation.prototype = {
 			//
 
 			var duration = this.data.length;
+			duration = 1.2;
 
 			if ( this.currentTime > duration || this.currentTime < 0 ) {
 
@@ -30296,6 +30297,7 @@ THREE.Animation.prototype = {
 
 	getNextKeyWith: function ( type, h, key ) {
 
+    
 		var keys = this.data.hierarchy[ h ].keys;
 
 		if ( this.interpolationType === THREE.AnimationHandler.CATMULLROM ||
@@ -30305,21 +30307,23 @@ THREE.Animation.prototype = {
 
 		} else {
 
-			key = key % this.endFrame;
+			key = key % (this.endFrame - this.startFrame);
 
 		}
 
+    
 		for ( ; key < this.endFrame; key ++ ) {
 
 			if ( keys[ key ][ type ] !== undefined ) {
 
+        console.log (key);
 				return keys[ key ];
 
 			}
 
 		}
 
-		return this.data.hierarchy[ h ].keys[ 0 ];
+		return this.data.hierarchy[ h ].keys[ this.startFrame ];
 
 	},
 
