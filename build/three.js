@@ -29756,7 +29756,6 @@ THREE.AnimationHandler = {
 
 	init: function ( data, startingKey, endingKey ) {
 
-    
 		if ( data.initialized === true ) return data;
 
 		// loop through all keys
@@ -29958,8 +29957,9 @@ THREE.AnimationHandler = {
  */
 
 THREE.Animation = function ( root, data, startingKey, endingKey ) {
-
-	this.root = root;
+  this.startingKey = startingKey;
+  this.endingKey = endingKey;
+ 	this.root = root;
 	this.data = THREE.AnimationHandler.init( data, startingKey, endingKey );
 	this.hierarchy = THREE.AnimationHandler.parse( root );
 
@@ -30298,21 +30298,24 @@ THREE.Animation.prototype = {
 	} )(),
 
 	getNextKeyWith: function ( type, h, key ) {
+	  
+	  var startKey = this.startingKey !== undefined ? this.startingKey : 0;
+	  var endKey = this.endingKey !== undefined ? this.endingKey : keys.length;
 
 		var keys = this.data.hierarchy[ h ].keys;
 
 		if ( this.interpolationType === THREE.AnimationHandler.CATMULLROM ||
 			 this.interpolationType === THREE.AnimationHandler.CATMULLROM_FORWARD ) {
 
-			key = key < keys.length - 1 ? key : keys.length - 1;
+			key = key < endKey - 1 ? key : endKey - 1;
 
 		} else {
 
-			key = key % keys.length;
+			key = key % endKey;
 
 		}
 
-		for ( ; key < keys.length; key ++ ) {
+		for ( ; key < endKey; key ++ ) {
 
 			if ( keys[ key ][ type ] !== undefined ) {
 
@@ -30322,27 +30325,30 @@ THREE.Animation.prototype = {
 
 		}
 
-		return this.data.hierarchy[ h ].keys[ 0 ];
+		return this.data.hierarchy[ h ].keys[ startKey ];
 
 	},
 
 	getPrevKeyWith: function ( type, h, key ) {
+
+	  var startKey = this.startingKey !== undefined ? this.startingKey : 0;
+	  var endKey = this.endingKey !== undefined ? this.endingKey : keys.length;
 
 		var keys = this.data.hierarchy[ h ].keys;
 
 		if ( this.interpolationType === THREE.AnimationHandler.CATMULLROM ||
 			this.interpolationType === THREE.AnimationHandler.CATMULLROM_FORWARD ) {
 
-			key = key > 0 ? key : 0;
+			key = key > startKey ? key : startKey;
 
 		} else {
 
-			key = key >= 0 ? key : key + keys.length;
+			key = key >= startKey ? key : key + endKey;
 
 		}
 
 
-		for ( ; key >= 0; key -- ) {
+		for ( ; key >= startKey; key -- ) {
 
 			if ( keys[ key ][ type ] !== undefined ) {
 
@@ -30352,7 +30358,7 @@ THREE.Animation.prototype = {
 
 		}
 
-		return this.data.hierarchy[ h ].keys[ keys.length - 1 ];
+		return this.data.hierarchy[ h ].keys[ endKey - 1 ];
 
 	}
 
