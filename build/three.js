@@ -29998,7 +29998,7 @@ THREE.Animation.prototype = {
 
 	reset: function () {
 		
-		this.currentTime = this.startTime >0 ? this.startTime - 4/30 : 0;
+		this.currentTime = this.startTime >0 ? this.startTime - 1/24 : 0;
 
 		for ( var h = 0, hl = this.hierarchy.length; h < hl; h ++ ) {
 
