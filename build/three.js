@@ -29766,7 +29766,7 @@ THREE.AnimationHandler = {
       var startKey = startingKey !== undefined ? startingKey: 0;
       var endKey = endingKey !== undefined ? endingKey: data.hierarchy[ h ].keys.length;
       
-			for ( var k = startkey; k < endKey; k ++ ) {
+			for ( var k = startKey; k < endKey; k ++ ) {
 
 				// remove minus times
 
