@@ -29754,15 +29754,19 @@ THREE.AnimationHandler = {
 
 	animations: [],
 
-	init: function ( data ) {
+	init: function ( data, startingKey, endingKey ) {
 
+    
 		if ( data.initialized === true ) return data;
 
 		// loop through all keys
 
 		for ( var h = 0; h < data.hierarchy.length; h ++ ) {
 
-			for ( var k = 0; k < data.hierarchy[ h ].keys.length; k ++ ) {
+      var startKey = startingKey !== undefined ? startingKey: 0;
+      var endKey = endingKey !== undefined ? endingKey: data.hierarchy[ h ].keys.length;
+      
+			for ( var k = startkey; k < endKey; k ++ ) {
 
 				// remove minus times
 
@@ -29793,8 +29797,9 @@ THREE.AnimationHandler = {
 				var usedMorphTargets = {};
 
 				for ( var k = 0; k < data.hierarchy[ h ].keys.length; k ++ ) {
-
-					for ( var m = 0; m < data.hierarchy[ h ].keys[ k ].morphTargets.length; m ++ ) {
+    
+          endKey = endingKey !== undefined ? endingKey: data.hierarchy[ h ].keys[ k ].morphTargets.length;
+					for ( var m = startKey; m < endKey; m ++ ) {
 
 						var morphTargetName = data.hierarchy[ h ].keys[ k ].morphTargets[ m ];
 						usedMorphTargets[ morphTargetName ] = - 1;
@@ -29814,7 +29819,8 @@ THREE.AnimationHandler = {
 
 					for ( var morphTargetName in usedMorphTargets ) {
 
-						for ( var m = 0; m < data.hierarchy[ h ].keys[ k ].morphTargets.length; m ++ ) {
+            endKey = endingKey !== undefined ? endingKey: data.hierarchy[ h ].keys[ k ].morphTargets.length;
+						for ( var m = startKey; m < endKey; m ++ ) {
 
 							if ( data.hierarchy[ h ].keys[ k ].morphTargets[ m ] === morphTargetName ) {
 
@@ -29825,7 +29831,7 @@ THREE.AnimationHandler = {
 
 						}
 
-						if ( m === data.hierarchy[ h ].keys[ k ].morphTargets.length ) {
+						if ( m === endKey ) {
 
 							influences[ morphTargetName ] = 0;
 
@@ -29951,10 +29957,10 @@ THREE.AnimationHandler = {
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.Animation = function ( root, data ) {
+THREE.Animation = function ( root, data, startingKey, endingKey ) {
 
 	this.root = root;
-	this.data = THREE.AnimationHandler.init( data );
+	this.data = THREE.AnimationHandler.init( data, startingKey, endingKey );
 	this.hierarchy = THREE.AnimationHandler.parse( root );
 
 	this.currentTime = 0;
