@@ -29974,10 +29974,10 @@ THREE.Animation.prototype = {
 
 	keyTypes:  [ "pos", "rot", "scl" ],
 
-	play: function ( startTime, duration, weight ) {
+	play: function ( startTime, duration, speed, weight ) {
 	  
 	  if(this.isPlaying) this.stop();
-	  
+	  this.speed = speed > 0 ? speed : 0;
     this.startTime = startTime >0 ? startTime : -1;
 		this.duration = duration >0 ? duration : -1;
 		this.weight = weight !== undefined ? weight : 1;
@@ -30131,7 +30131,7 @@ THREE.Animation.prototype = {
 
 			if ( this.isPlaying === false ) return;
 
-			this.currentTime += delta * this.timeScale;
+			this.currentTime += (delta * this.timeScale) * this.speed;
 
 			if ( this.weight === 0 )
 				return;
