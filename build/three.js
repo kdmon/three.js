@@ -29956,9 +29956,10 @@ THREE.AnimationHandler = {
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.Animation = function ( root, data, startingKey, endingKey ) {
+THREE.Animation = function ( root, data, startingKey, endingKey, duration ) {
   this.startingKey = startingKey;
   this.endingKey = endingKey;
+  this.duration = duration;
  	this.root = root;
 	this.data = THREE.AnimationHandler.init( data, startingKey, endingKey );
 	this.hierarchy = THREE.AnimationHandler.parse( root );
@@ -30139,9 +30140,8 @@ THREE.Animation.prototype = {
 			if ( this.weight === 0 )
 				return;
 
-			//
+	    var duration = this.duration !==undefined ? this.duration : this.data.length;
 
-			var duration = this.data.length;
 
 			if ( this.currentTime > duration || this.currentTime < 0 ) {
 
