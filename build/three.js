@@ -29952,7 +29952,7 @@ THREE.AnimationHandler = {
  */
 
 THREE.Animation = function ( root, data ) {
-  
+
 	this.root = root;
 	this.data = THREE.AnimationHandler.init( data );
 	this.hierarchy = THREE.AnimationHandler.parse( root );
@@ -29974,12 +29974,10 @@ THREE.Animation.prototype = {
 
 	keyTypes:  [ "pos", "rot", "scl" ],
 
-	play: function (startFrame, endFrame, fps, startTime, weight) {
-	  this.startFrame = startFrame !== undefined ? startFrame : 0;
-	  this.endFrame = endFrame !== undefined ? endFrame : -1;
-	  this.fps = fps !== undefined ? fps : 24;
+	play: function ( startTime, duration, weight ) {
 
 		this.currentTime = startTime !== undefined ? startTime : 0;
+		this.duration = duration !== undefined ? duration : this.duration;
 		this.weight = weight !== undefined ? weight : 1;
 
 		this.isPlaying = true;
@@ -30038,8 +30036,8 @@ THREE.Animation.prototype = {
 
 				var type = this.keyTypes[ t ];
 
-				var prevKey = this.data.hierarchy[ h ].keys[ this.startFrame ];
-				var nextKey = this.getNextKeyWith( type, h, this.startFrame +1 );
+				var prevKey = this.data.hierarchy[ h ].keys[ 0 ];
+				var nextKey = this.getNextKeyWith( type, h, 1 );
 
 				while ( nextKey.time < this.currentTime && nextKey.index > prevKey.index ) {
 
@@ -30139,7 +30137,6 @@ THREE.Animation.prototype = {
 			//
 
 			var duration = this.data.length;
-			if(this.endFrame > 0)	duration = (this.endFrame-this.startFrame)/this.fps;
 
 			if ( this.currentTime > duration || this.currentTime < 0 ) {
 
@@ -30179,8 +30176,8 @@ THREE.Animation.prototype = {
 					if ( ( this.timeScale > 0 && nextKey.time <= this.currentTime ) ||
 						( this.timeScale < 0 && prevKey.time >= this.currentTime ) ) {
 
-						prevKey = this.data.hierarchy[ h ].keys[ this.startFrame ];
-						nextKey = this.getNextKeyWith( type, h, this.startFrame+1 );
+						prevKey = this.data.hierarchy[ h ].keys[ 0 ];
+						nextKey = this.getNextKeyWith( type, h, 1 );
 
 						while ( nextKey.time < this.currentTime && nextKey.index > prevKey.index ) {
 
@@ -30297,25 +30294,20 @@ THREE.Animation.prototype = {
 
 	getNextKeyWith: function ( type, h, key ) {
 
-    
 		var keys = this.data.hierarchy[ h ].keys;
 
-    var endingKey = this.endFrame !== undefined ? this.endFrame : this.data.hierarchy[ h ].keys.length;
-    
 		if ( this.interpolationType === THREE.AnimationHandler.CATMULLROM ||
 			 this.interpolationType === THREE.AnimationHandler.CATMULLROM_FORWARD ) {
 
-			key = key < endingKey - 1 ? key : endingKey - 1;
+			key = key < keys.length - 1 ? key : keys.length - 1;
 
 		} else {
 
-      var totalKeys = this.endFrame !== undefined ? (this.endFrame - this.startFrame) : keys.length;
-			key = key % totalKeys;
+			key = key % keys.length;
 
 		}
 
-    
-		for ( ; key < endingKey; key ++ ) {
+		for ( ; key < keys.length; key ++ ) {
 
 			if ( keys[ key ][ type ] !== undefined ) {
 
@@ -30325,28 +30317,27 @@ THREE.Animation.prototype = {
 
 		}
 
-		return this.data.hierarchy[ h ].keys[ this.startFrame ];
+		return this.data.hierarchy[ h ].keys[ 0 ];
 
 	},
 
 	getPrevKeyWith: function ( type, h, key ) {
 
 		var keys = this.data.hierarchy[ h ].keys;
-    var endingKey = this.endFrame !== undefined ? this.endFrame : keys.length;
-      
+
 		if ( this.interpolationType === THREE.AnimationHandler.CATMULLROM ||
 			this.interpolationType === THREE.AnimationHandler.CATMULLROM_FORWARD ) {
 
-			key = key > this.startFrame ? key : this.startFrame;
+			key = key > 0 ? key : 0;
 
 		} else {
 
-			key = key >= this.startFrame ? key : key + endingKey;
+			key = key >= 0 ? key : key + keys.length;
 
 		}
 
 
-		for ( ; key >= this.startFrame; key -- ) {
+		for ( ; key >= 0; key -- ) {
 
 			if ( keys[ key ][ type ] !== undefined ) {
 
@@ -30356,7 +30347,7 @@ THREE.Animation.prototype = {
 
 		}
 
-		return this.data.hierarchy[ h ].keys[ endingKey - 1 ];
+		return this.data.hierarchy[ h ].keys[ keys.length - 1 ];
 
 	}
 
@@ -35140,3 +35131,4 @@ THREE.MorphBlendMesh.prototype.update = function ( delta ) {
 	}
 
 };
+
