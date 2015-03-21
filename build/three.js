@@ -29975,12 +29975,13 @@ THREE.Animation.prototype = {
 	keyTypes:  [ "pos", "rot", "scl" ],
 
 	play: function ( startTime, duration, weight ) {
+	  
+	  if(this.isPlaying) this.stop();
+	  
     this.startTime = startTime >0 ? startTime : -1;
 		this.duration = duration >0 ? duration : -1;
 		this.weight = weight !== undefined ? weight : 1;
-
 		this.isPlaying = true;
-
 		this.reset();
 
 		THREE.AnimationHandler.play( this );
@@ -29996,9 +29997,9 @@ THREE.Animation.prototype = {
 	},
 
 	reset: function () {
-
-		this.currentTime = this.startTime >0 ? this.startTime : 0;
 		
+		this.currentTime = this.startTime >0 ? this.startTime - 4/30 : 0;
+
 		for ( var h = 0, hl = this.hierarchy.length; h < hl; h ++ ) {
 
 			var object = this.hierarchy[ h ];
