@@ -43,14 +43,14 @@
     </effect>
     <effect id="scene_material">
       <profile_COMMON>
-        <newparam sid="VWS_B_Male2-2_jpg-surface">
+        <newparam sid="female2_jpg-surface">
           <surface type="2D">
-            <init_from>VWS_B_Male2-2_jpg</init_from>
+            <init_from>female2_jpg</init_from>
           </surface>
         </newparam>
-        <newparam sid="VWS_B_Male2-2_jpg-sampler">
+        <newparam sid="female2_jpg-sampler">
           <sampler2D>
-            <source>VWS_B_Male2-2_jpg-surface</source>
+            <source>female2_jpg-surface</source>
           </sampler2D>
         </newparam>
         <technique sid="common">
@@ -62,7 +62,7 @@
               <color>0.3 0.3 0.3 1</color>
             </ambient>
             <diffuse>
-              <texture texture="VWS_B_Male2-2_jpg-sampler" texcoord="CHANNEL1"/>
+              <texture texture="female2_jpg-sampler" texcoord="CHANNEL1"/>
             </diffuse>
             <specular>
               <color>0.9 0.9 0.9 1</color>
@@ -253,8 +253,8 @@
     </controller> 
   </library_controllers>
   <library_images>
-    <image id="VWS_B_Female1-1_jpg">
-      <init_from>VWS_B_Female1-1.jpg</init_from>
+    <image id="female2_jpg">
+      <init_from>female2.jpg</init_from>
     </image>
   </library_images>
   <library_visual_scenes>
