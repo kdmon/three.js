@@ -29977,7 +29977,7 @@ THREE.Animation.prototype = {
 	play: function ( startTime, duration, speed, weight ) {
 	  
 	  if(this.isPlaying) this.stop();
-	  this.speed = speed > 0 ? speed : 0;
+	  this.speed = speed > 0 ? speed : 1;
     this.startTime = startTime >0 ? startTime : -1;
 		this.duration = duration >0 ? duration : -1;
 		this.weight = weight !== undefined ? weight : 1;
@@ -29998,7 +29998,7 @@ THREE.Animation.prototype = {
 
 	reset: function () {
 		
-		this.currentTime = this.startTime >0 ? this.startTime - 1/24 : 0;
+		this.currentTime = this.startTime >0 ? this.startTime - (1/24*this.speed) : 0;
 
 		for ( var h = 0, hl = this.hierarchy.length; h < hl; h ++ ) {
 
