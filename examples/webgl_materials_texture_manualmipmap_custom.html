@@ -385,8 +385,8 @@
   
   						if ( child instanceof THREE.SkinnedMesh && (animate == true)) {
   
-  							var animation = new THREE.Animation( child, child.geometry.animation, keystart, keystop, fps);
-  							animation.play();
+  							var animation = new THREE.Animation( child, child.geometry.animation);
+  							animation.play(keystart, keystop, fps);
   
   						}
   
@@ -403,8 +403,8 @@
         addPerson ("./models/collada/avatar.dae", 105, 500, 12000, 0);
         */
         
-        addPerson ("./models/collada/female2.dae", 100, 400, 1800, -90, 1, 9, 24);
-        addPerson ("./models/collada/avatar.dae", 105, 400, 1400, -90, 1,9,24);
+        addPerson ("./models/collada/female2.dae", 100, 400, 1800, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 105, 400, 1400, -90, 1, 9, 30, 24);
         
           /*
   			function ensureLoop( animation ) {
