@@ -30042,8 +30042,8 @@ THREE.Animation.prototype = {
 
 				var type = this.keyTypes[ t ];
 
-				var prevKey = this.data.hierarchy[ h ].keys[ 0 ];
-				var nextKey = this.getNextKeyWith( type, h, 1 );
+				var prevKey = this.data.hierarchy[ h ].keys[ this.startingKey ];
+				var nextKey = this.getNextKeyWith( type, h, this.startingKey+1 );
 
 				while ( nextKey.time < this.currentTime && nextKey.index > prevKey.index ) {
 
@@ -30188,8 +30188,8 @@ THREE.Animation.prototype = {
 					if ( ( this.timeScale > 0 && nextKey.time <= this.currentTime ) ||
 						( this.timeScale < 0 && prevKey.time >= this.currentTime ) ) {
 
-						prevKey = this.data.hierarchy[ h ].keys[ 0 ];
-						nextKey = this.getNextKeyWith( type, h, 1 );
+						prevKey = this.data.hierarchy[ h ].keys[ this.startingKey ];
+						nextKey = this.getNextKeyWith( type, h, this.startingKey+1 );
 
 						while ( nextKey.time < this.currentTime && nextKey.index > prevKey.index ) {
 
@@ -30382,7 +30382,6 @@ THREE.Animation.prototype = {
  */
 
 THREE.KeyFrameAnimation = function ( data ) {
-
 	this.root = data.node;
 	this.data = THREE.AnimationHandler.init( data );
 	this.hierarchy = THREE.AnimationHandler.parse( this.root );
