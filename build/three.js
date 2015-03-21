@@ -29975,9 +29975,8 @@ THREE.Animation.prototype = {
 	keyTypes:  [ "pos", "rot", "scl" ],
 
 	play: function ( startTime, duration, weight ) {
-
-		this.currentTime = startTime !== undefined ? startTime : 0;
-		this.duration = duration !== undefined ? duration : this.duration;
+    this.startTime = startTime >0 ? startTime : -1;
+		this.duration = duration >0 ? duration : -1;
 		this.weight = weight !== undefined ? weight : 1;
 
 		this.isPlaying = true;
@@ -29998,6 +29997,8 @@ THREE.Animation.prototype = {
 
 	reset: function () {
 
+		this.currentTime = this.startTime >0 ? this.startTime : 0;
+		
 		for ( var h = 0, hl = this.hierarchy.length; h < hl; h ++ ) {
 
 			var object = this.hierarchy[ h ];
@@ -30136,7 +30137,7 @@ THREE.Animation.prototype = {
 
 			//
 
-			var duration = this.data.length;
+			var duration = this.duration >0 ? this.duration : this.data.length;
 
 			if ( this.currentTime > duration || this.currentTime < 0 ) {
 
