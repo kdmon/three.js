@@ -90,6 +90,8 @@
 			if (!audioEnabled) $("#audiobutton").css({opacity: 0.4});
 			if (!peopleEnabled) $("#peoplebutton").css({opacity: 0.4});
 			
+			var fps = 16;
+			
 			var fullscreen = false;
 			
 			init();
@@ -416,8 +418,7 @@
                 
             if (!peopleEnabled) dae.position.y -= 400;
 
-            var acc = Math.random()/10;
-            acc += 1;
+            var acc = fps/30;// +Math.random()/10*fps/30;
             
             objectArray.push({person: dae, velocity: acc});
             
@@ -676,10 +677,10 @@
 				//requestAnimationFrame( animate );
         setTimeout( function() {
             requestAnimationFrame( animate );
-        }, 1000 / 12 );
+        }, 1000 / fps );
 
 				for (i=0;i<objectArray.length;i++){
-				  objectArray[i].person.position.x -= objectArray[i].velocity * 5;
+				  objectArray[i].person.position.x -= objectArray[i].velocity * 15;
 				  objectArray[i].person.position.z -= Math.random() - 0.5;
 				  if (objectArray[i].person.position.x<-400) objectArray[i].person.position.x = 21000;
 				}
