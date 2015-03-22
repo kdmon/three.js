@@ -18,7 +18,8 @@
 		</style>
 	</head>
 
-	<body>
+	<body onload="setTimeout(function(){animate()}, 2500)">
+	  <h1 style="color:white">Interactive Gallery</h1>
 
 
 		<script src="../build/three.js"></script>
@@ -37,8 +38,8 @@
 
 			if ( !Detector.webgl ) Detector.addGetWebGLMessage();
 
-			var SCREEN_WIDTH = window.innerWidth;
-			var SCREEN_HEIGHT = window.innerHeight;
+			var SCREEN_WIDTH = 1024;//window.innerWidth;
+			var SCREEN_HEIGHT = 600;//window.innerHeight;
 
       var scale = 100;
       
@@ -46,15 +47,11 @@
 
 			var camera, controls, scene, groundMirror, renderer;
 
-			var windowHalfX = window.innerWidth / 2;
-			var windowHalfY = window.innerHeight / 2;
-
 			var clock = new THREE.Clock();
 			
       var objectArray = [];
 			
 			init();
-			animate();
 
 
 			function init() {
@@ -69,7 +66,7 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 20000 );
+				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
 				camera.position.z = 400;
 				camera.position.x = -400;
 				camera.position.y = 162;
@@ -84,7 +81,7 @@
 	
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0xcccccc, 19000, 20000 );
+				scene.fog = new THREE.Fog( 0xaaaaaa, 2500, 6000 );
 
 				// FLOOR
         
@@ -337,7 +334,7 @@
         var ambientLight = new THREE.AmbientLight(ambientColor.getHex());
 				scene.add( ambientLight );
 				
-				for (i = 0; i<10;i++) {
+				for (i = 0; i<0;i++) {
   				var light = new THREE.PointLight( 0xffffff, 2, 300 );
   				light.position.z = 400;
   				light.position.x = (2500*i+1);
@@ -367,7 +364,7 @@
 				mirrorMesh.position.z = 400;
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
-				scene.add( mirrorMesh );
+				//scene.add( mirrorMesh );
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
@@ -512,12 +509,13 @@
 
 		function onWindowResize() {
 
-			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.aspect = SCREEN_WIDTH/SCREEN_HEIGHT//window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
 
 			controls.handleResize();
 
-			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+//			renderer.setSize( window.innerWidth, window.innerHeight );
 
 		}
 
@@ -532,11 +530,10 @@
 			}
 
 			function render() {
-			  
 				var delta = clock.getDelta();
 				controls.update( delta );
 				THREE.AnimationHandler.update(delta);
-				groundMirror.render();
+				//groundMirror.render();
 				renderer.render( scene, camera );
 
 			}
