@@ -24,8 +24,7 @@
 			.icon {
 			  position: fixed;
 			  top:0px;
-			  left:0px;
-			  width: 65px;
+			  height: 65px;
 			  z-index: 999;
 			  background: #eee;
 			  display: none;
@@ -40,8 +39,9 @@
 	</head>
 
 	<body onload="start();">
-	  <img id="audiobutton" title="Toggle audio" onclick="toggleAudio()" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
+	  <img id="audiobutton" title="Toggle audio" onclick="toggleAudio()" style="left: 0px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
 	  <img id="peoplebutton" title="Toggle virtual visitors" onclick="togglePeople()" style="left: 70px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Topeka-entertainment.svg/240px-Topeka-entertainment.svg.png" class="icon"/>
+	  <img id="fullscreenbutton" title="Toggle virtual visitors" onclick="toggleFullscreen()" class="icon" style="padding-left: 5px; padding-right: 5px; right: 0px; background: #ddd; opacity: 0.4;" src="http://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Octicons-screen-full.svg/210px-Octicons-screen-full.svg.png"/>
 	  <h1 style="color:white">Interactive Gallery</h1>
 
 		<script src="../build/three.js"></script>
@@ -82,6 +82,7 @@
 			if (!audioEnabled) $("#audiobutton").css({opacity: 0.4});
 			if (!peopleEnabled) $("#peoplebutton").css({opacity: 0.4});
 			
+			var fullscreen = false;
 			
 			init();
 
@@ -550,7 +551,39 @@
 
 		}
 
+      function toggleFullscreen () {
+     
+        if (fullScreen) {
+          if(document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if(document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if(document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+          
+          $("#fullscreenbutton").css({"opacity": 0.4});
+          fullscreen = false;
+          
+        }
 
+        else {
+          var element = document.documentElement;
+          if(element.requestFullscreen) {
+            element.requestFullscreen();
+          } else if(element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if(element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+          } else if(element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+          }
+  
+          $("#fullscreenbutton").css({"opacity": 1});
+          fullscreen = true;
+        }
+      }
+      
       function toggleAudio () {
         
         if (audioEnabled) {
@@ -604,6 +637,7 @@
       
         $("#peoplebutton").show();
         $("#audiobutton").show();
+        $("#fullscreenbutton").show();
         
 			  if (audioEnabled) {
           ambientsound.play();
