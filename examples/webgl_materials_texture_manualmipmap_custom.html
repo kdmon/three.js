@@ -10,15 +10,19 @@
 				font-family:Monospace;
 				font-size:13px;
 				text-align:center;
-				background-color: #ccc;
+				background-color: #111;
 				margin: 0px;
 				overflow: hidden;
+				background-image: url("http://upload.wikimedia.org/wikipedia/commons/d/de/Ajax-loader.gif");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center; 
 			}
 
 		</style>
 	</head>
 
-	<body onload="setTimeout(function(){animate()}, 2500)">
+	<body onload="start();">
 	  <h1 style="color:white">Interactive Gallery</h1>
 
 
@@ -44,6 +48,8 @@
       var scale = 100;
       
 			var container, stats, dae;
+			
+			var controlsReady = false;
 
 			var camera, controls, scene, groundMirror, renderer;
 
@@ -70,15 +76,8 @@
 				camera.position.z = 400;
 				camera.position.x = -400;
 				camera.position.y = 162;
-//				camera.rotation.y = (Math.PI*180)*0;
+				camera.rotation.y = (Math.PI/180)*-90;
 				
-
-				controls = new THREE.FirstPersonControls( camera );
-				controls.movementSpeed = 300;
-				controls.audio = true;
-				controls.lookSpeed = 0.10;
-				controls.lookVertical = false;
-	
 
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xaaaaaa, 2500, 6000 );
@@ -291,6 +290,13 @@
           "P1120447.JPG",
           "P1120594a.JPG"
           ];
+          
+          function shuffle(o){ //v1.0
+              for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+              return o;
+          };
+          
+          shuffle(thumbs);
 
         for(i=0;i<thumbs.length;i++) {
           addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
@@ -349,7 +355,6 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.domElement.style.position = "relative";
-				container.appendChild( renderer.domElement );
 
 
 				// MIRROR planes
@@ -381,7 +386,7 @@
             dae.position.x = x;
             
             var acc = Math.random();
-            acc += 0.5;
+            acc += 0.3;
             
             objectArray.push({person: dae, velocity: acc});
             
@@ -424,7 +429,7 @@
         addPerson ("./models/collada/monster/monster.dae", 0.07, 600, 2500, 180,0);
         addPerson ("./models/collada/avatar.dae", 105, 500, 12000, 0);
         */
-        
+        /*
         addPerson ("./models/collada/female2.dae", 100, 300, 2800, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/female2.dae", 105, 500, 5600, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/avatar.dae", 110, 200, 7600, -90, 1, 9, 30, 24);
@@ -432,8 +437,9 @@
         
         
         addPerson ("./models/collada/female2.dae", 105, 300, 12800, -90, 1, 9, 30, 24);
-        addPerson ("./models/collada/female2.dae", 100, 600, 14600, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/avatar.dae", 105, 500, 15600, -90, 1, 9, 30, 24);
+        */
+        addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/avatar.dae", 110, 200, 17600, -90, 1, 9, 30, 24);
         
           /*
@@ -519,9 +525,24 @@
 
 		}
 
+      function start () {
+        
+				container.appendChild( renderer.domElement );
+				animate();
+				
+				setTimeout(function(){
+  				controls = new THREE.FirstPersonControls( camera );
+  				controls.movementSpeed = 300;
+  				controls.audio = true;
+  				controls.lookSpeed = 0.10;
+  				controls.lookVertical = false;
+          controlsReady = true;
+				},2000);
+      }
+      
 			function animate() {
 				requestAnimationFrame( animate );
-				for (i=1;i<objectArray.length;i++){
+				for (i=0;i<objectArray.length;i++){
 				  objectArray[i-1].person.position.x -= objectArray[i-1].velocity * 6.5;
 				  objectArray[i-1].person.position.z -= Math.random() - 0.5;
 				  if (objectArray[i-1].person.position.x<-400) objectArray[i-1].person.position.x = 21000;
@@ -531,7 +552,7 @@
 
 			function render() {
 				var delta = clock.getDelta();
-				controls.update( delta );
+				if (controlsReady) controls.update( delta );
 				THREE.AnimationHandler.update(delta);
 				//groundMirror.render();
 				renderer.render( scene, camera );
