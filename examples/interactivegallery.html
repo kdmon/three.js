@@ -112,7 +112,7 @@
 
 					imageCanvas.width = imageCanvas.height = size;
 
-					context.fillStyle = "#000";
+					context.fillStyle = "#eee";
 					context.fillRect( 0, 0, size, size );
 
 					context.fillStyle = color;
@@ -122,20 +122,20 @@
 
 				}
 
-				var canvas = mipmap( 128, '#111' );
+				var canvas = mipmap( 128, '#ddd' );
 				var textureCanvas = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
 				textureCanvas.repeat.set( 1000, 1000 );
 				textureCanvas.mipmaps[ 0 ] = canvas;
-				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#111' );
-				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#111' );
-				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#111' );
-				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#222' );
-				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#333' );
-				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#444' );
-				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#555' );
+				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#ddd' );
+				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#ddd' );
+				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#ddd' );
+				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#ddd' );
+				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#ddd' );
+				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#ddd' );
+				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#dcdcdc' );
 				textureCanvas.needsUpdate = true;
 
-				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 1 });
+				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.8 });
 
 				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
@@ -390,7 +390,7 @@
 				mirrorMesh.position.z = 400;
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
-				//scene.add( mirrorMesh );
+				scene.add( mirrorMesh );
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
@@ -408,8 +408,8 @@
                 
             if (!peopleEnabled) dae.position.y -= 400;
 
-            var acc = Math.random();
-            acc += 0.3;
+            var acc = Math.random()/10;
+            acc += 1;
             
             objectArray.push({person: dae, velocity: acc});
             
@@ -535,6 +535,10 @@
 		  });*/
 		
 		}
+		
+		$(document).on("webkitfullscreenchange mozfullscreenchange fullscreenchange",function(){
+        onWindowResize();
+		});
 
 		function onWindowResize() {
 		  
@@ -553,7 +557,7 @@
 
       function toggleFullscreen () {
      
-        if (fullScreen) {
+        if (fullscreen) {
           if(document.exitFullscreen) {
             document.exitFullscreen();
           } else if(document.mozCancelFullScreen) {
@@ -663,7 +667,7 @@
 			function animate() {
 				requestAnimationFrame( animate );
 				for (i=0;i<objectArray.length;i++){
-				  objectArray[i].person.position.x -= objectArray[i].velocity * 6.5;
+				  objectArray[i].person.position.x -= objectArray[i].velocity * 5;
 				  objectArray[i].person.position.z -= Math.random() - 0.5;
 				  if (objectArray[i].person.position.x<-400) objectArray[i].person.position.x = 21000;
 				}
@@ -674,7 +678,7 @@
 				var delta = clock.getDelta();
 				if (controlsReady) controls.update( delta );
 				THREE.AnimationHandler.update(delta);
-				//groundMirror.render();
+				groundMirror.render();
 				renderer.render( scene, camera );
 
 			}
