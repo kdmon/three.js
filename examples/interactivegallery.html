@@ -40,8 +40,8 @@
 	</head>
 
 	<body onload="start();">
-	  <img id="audiobutton" onclick="toggleAudio()" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
-	  <img id="peoplebutton" onclick="togglePeople()" style="left: 70px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Topeka-entertainment.svg/240px-Topeka-entertainment.svg.png" class="icon"/>
+	  <img id="audiobutton" title="Toggle audio" onclick="toggleAudio()" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
+	  <img id="peoplebutton" title="Toggle virtual visitors" onclick="togglePeople()" style="left: 70px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Topeka-entertainment.svg/240px-Topeka-entertainment.svg.png" class="icon"/>
 	  <h1 style="color:white">Interactive Gallery</h1>
 
 		<script src="../build/three.js"></script>
@@ -536,6 +536,9 @@
 		}
 
 		function onWindowResize() {
+		  
+			SCREEN_WIDTH = window.innerWidth;
+			SCREEN_HEIGHT = window.innerHeight - 50;
 
 			camera.aspect = SCREEN_WIDTH/SCREEN_HEIGHT//window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
