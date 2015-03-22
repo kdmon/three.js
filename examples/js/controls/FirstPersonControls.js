@@ -78,28 +78,31 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	this.onMouseDown = function ( event ) {
 
-		if ( this.domElement !== document ) {
 
-			this.domElement.focus();
-
-		}
-
-		event.preventDefault();
-		event.stopPropagation();
-
-		if ( this.activeLook ) {
-
-			switch ( event.button ) {
-
-				case 0: this.moveForward = true; break;
-				case 2: this.moveBackward = true; break;
-
-			}
-
-		}
-
-		this.mouseDragOn = true;
-
+	  if (event.pageY > 80){
+  	    
+  		if ( this.domElement !== document ) {
+  
+  			this.domElement.focus();
+  
+  		}
+  
+  		event.preventDefault();
+  		event.stopPropagation();
+  
+  		if ( this.activeLook ) {
+  
+  			switch ( event.button ) {
+  
+  				case 0: this.moveForward = true; break;
+  				case 2: this.moveBackward = true; break;
+  
+  			}
+  
+  		}
+  
+  		this.mouseDragOn = true;
+    }
 	};
 
 	this.onMouseUp = function ( event ) {
@@ -123,18 +126,22 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	};
 
 	this.onMouseMove = function ( event ) {
-
-		if ( this.domElement === document ) {
-
-			this.mouseX = event.pageX - this.viewHalfX;
-			this.mouseY = event.pageY - this.viewHalfY;
-
-		} else {
-
-			this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
-			this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
-
-		}
+	  
+	  if (event.pageY > 80){
+  
+  		if ( this.domElement === document ) {
+  
+  			this.mouseX = event.pageX - this.viewHalfX;
+  			this.mouseY = event.pageY - this.viewHalfY;
+  
+  		} else {
+  
+  			this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
+  			this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
+  
+  		}
+	    
+	  }
 
 	};
 
