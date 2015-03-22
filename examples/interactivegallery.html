@@ -340,7 +340,7 @@
         var ambientLight = new THREE.AmbientLight(ambientColor.getHex());
 				scene.add( ambientLight );
 				
-				for (i = 0; i<0;i++) {
+				for (i = 0; i<10;i++) {
   				var light = new THREE.PointLight( 0xffffff, 2, 300 );
   				light.position.z = 400;
   				light.position.x = (2500*i+1);
@@ -369,7 +369,7 @@
 				mirrorMesh.position.z = 400;
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
-				//scene.add( mirrorMesh );
+				scene.add( mirrorMesh );
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
@@ -543,9 +543,9 @@
 			function animate() {
 				requestAnimationFrame( animate );
 				for (i=0;i<objectArray.length;i++){
-				  objectArray[i-1].person.position.x -= objectArray[i-1].velocity * 6.5;
-				  objectArray[i-1].person.position.z -= Math.random() - 0.5;
-				  if (objectArray[i-1].person.position.x<-400) objectArray[i-1].person.position.x = 21000;
+				  objectArray[i].person.position.x -= objectArray[i].velocity * 6.5;
+				  objectArray[i].person.position.z -= Math.random() - 0.5;
+				  if (objectArray[i].person.position.x<-400) objectArray[i].person.position.x = 21000;
 				}
 				render();
 			}
@@ -554,7 +554,7 @@
 				var delta = clock.getDelta();
 				if (controlsReady) controls.update( delta );
 				THREE.AnimationHandler.update(delta);
-				//groundMirror.render();
+				groundMirror.render();
 				renderer.render( scene, camera );
 
 			}
