@@ -4,6 +4,8 @@
 		<title>Exhibition simulation</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		
+    <script src="http://it4se.com:8080/js/jquery-1.11.2.min.js"></script>
 		<style>
 			body {
 				color: #ccc;
@@ -23,24 +25,26 @@
 			  position: fixed;
 			  top:0px;
 			  left:0px;
-			  width: 70px;
+			  width: 65px;
 			  z-index: 999;
+			  background: #eee;
+			  display: none;
 			}
 			
-			.enabled {
-			  box-shadow: #f00 10 10 10;
+			.icon:hover {
+			  background: #fff;
+			  opacity: 1;
 			}
 
 		</style>
 	</head>
 
 	<body onload="start();">
-	  <img src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
-	  <img style="left: 60px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Topeka-entertainment.svg/240px-Topeka-entertainment.svg.png" class="icon"/>
+	  <img id="audiobutton" onclick="toggleAudio()" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
+	  <img id="peoplebutton" onclick="togglePeople()" style="left: 70px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Topeka-entertainment.svg/240px-Topeka-entertainment.svg.png" class="icon"/>
 	  <h1 style="color:white">Interactive Gallery</h1>
 
 		<script src="../build/three.js"></script>
-
 
 		<script src="js/Mirror.js"></script>
 		<script src="js/controls/FirstPersonControls.js"></script>
@@ -69,18 +73,21 @@
 			var clock = new THREE.Clock();
 			
       var objectArray = [];
+      
+      var peopleEnabled = localStorage["showpeople"] ? JSON.parse(localStorage["showpeople"]): true;
+      var audioEnabled = localStorage["audio"] ? JSON.parse(localStorage["audio"]): true;
+      
+			var ambientsound = new Audio ("http://freesound.org/data/previews/79/79706_623488-lq.mp3");
+			
+			if (!audioEnabled) $("#audiobutton").css({opacity: 0.4});
+			if (!peopleEnabled) $("#peoplebutton").css({opacity: 0.4});
+			
 			
 			init();
 
 
 			function init() {
-        var ambientsound = new Audio ("http://freesound.org/data/previews/79/79706_623488-lq.mp3");
-        ambientsound.play();
-                
-        ambientsound.addEventListener('ended', function() {
-            this.currentTime = 0;
-            this.play();
-        }, false);
+			  
         
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
@@ -127,7 +134,7 @@
 				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#555' );
 				textureCanvas.needsUpdate = true;
 
-				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.85 });
+				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 1 });
 
 				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
@@ -382,7 +389,7 @@
 				mirrorMesh.position.z = 400;
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
-				scene.add( mirrorMesh );
+				//scene.add( mirrorMesh );
 				
 	      window.addEventListener( 'resize', onWindowResize, false );
 
@@ -397,7 +404,9 @@
             dae.rotation.z = rotation * (Math.PI/180);
             dae.position.z = z;
             dae.position.x = x;
-            
+                
+            if (!peopleEnabled) dae.position.y -= 400;
+
             var acc = Math.random();
             acc += 0.3;
             
@@ -538,15 +547,76 @@
 
 		}
 
-      function start () {
+
+      function toggleAudio () {
         
+        if (audioEnabled) {
+          $("#audiobutton").css({"opacity": 0.4});
+          ambientsound.pause();
+          ambientsound.removeEventListener('ended', function() {});
+  				controls.audio = false;
+          audioEnabled = false;
+          localStorage["audio"] = false;
+        }
+        
+        else {
+          $("#audiobutton").css({"opacity": 1});
+          ambientsound.play();
+          ambientsound.addEventListener('ended', function() {
+              this.currentTime = 0;
+              this.play();
+          }, false);
+  				controls.audio = true;
+          audioEnabled = true;
+          localStorage["audio"] = true;
+			  }
+      }
+      
+      
+      function togglePeople () {
+        
+        if (peopleEnabled) {
+            
+  				for (i=0;i<objectArray.length;i++){
+  				  objectArray[i].person.position.y -= 400;
+  				}
+  				
+          $("#peoplebutton").css({"opacity": 0.4});
+          peopleEnabled = false;
+          localStorage["showpeople"] = false;
+        }
+        
+        else {
+  				for (i=0;i<objectArray.length;i++){
+  				  objectArray[i].person.position.y = 0;
+  				}
+          peopleEnabled = true;
+          $("#peoplebutton").css({"opacity": 1});
+          localStorage["showpeople"] = true;
+			  }
+      }
+      
+      
+      function start () {
+      
+        $("#peoplebutton").show();
+        $("#audiobutton").show();
+        
+			  if (audioEnabled) {
+          ambientsound.play();
+          ambientsound.addEventListener('ended', function() {
+              this.currentTime = 0;
+              this.play();
+          }, false);
+			  }
+			  
 				container.appendChild( renderer.domElement );
 				animate();
 				
 				setTimeout(function(){
   				controls = new THREE.FirstPersonControls( camera );
   				controls.movementSpeed = 300;
-  				controls.audio = true;
+  				if(audioEnabled) controls.audio = true;
   				controls.lookSpeed = 0.10;
   				controls.lookVertical = false;
           controlsReady = true;
