@@ -90,7 +90,7 @@
 			if (!audioEnabled) $("#audiobutton").css({opacity: 0.4});
 			if (!peopleEnabled) $("#peoplebutton").css({opacity: 0.4});
 			
-			var fps = 16;
+			var fps = 20;
 			
 			var fullscreen = false;
 			
@@ -103,7 +103,7 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 16000 );
+				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 6000 );
 				camera.position.z = 400;
 				camera.position.x = 0;
 				camera.position.y = 162;
@@ -111,9 +111,9 @@
 				
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0xcccccc, 14000, 16000 );
+				scene.fog = new THREE.Fog( 0xcccccc, 3000, 6000 );
 
-				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
+				var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
 				// FLOOR
         
 				function mipmap( size, color ) {
@@ -151,7 +151,7 @@
 
 				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
 				meshCanvas.rotation.x = -Math.PI / 2;
-				meshCanvas.scale.set(400, 400, 400);
+				meshCanvas.scale.set(4000, 4000, 4000);
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
@@ -333,11 +333,10 @@
           addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
         }
         
-        
     
 				var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-				meshWall.scale.x = 20;
-				meshWall.scale.y = 10;
+				meshWall.scale.x = 200;
+				meshWall.scale.y = 100;
 				meshWall.position.x = -800;
 				meshWall.position.y = 0
 				meshWall.position.z = 100
@@ -346,8 +345,8 @@
 				
 				
 				meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
-				meshWall.scale.x = 20;
-				meshWall.scale.y = 10;
+				meshWall.scale.x = 200;
+				meshWall.scale.y = 100;
 				meshWall.position.x = 20000;
 				meshWall.position.y = 0
 				meshWall.position.z = 100
@@ -357,9 +356,9 @@
 				
     		var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xeeeeee, specular: 0xffffff, shininess: 0, metal: false } );
 				var meshCeiling = new THREE.Mesh( geometry, meshMaterial);
-				meshCeiling.scale.x = 240;
-				meshCeiling.scale.y = 8;
-				meshCeiling.scale.z = 100;
+				meshCeiling.scale.x = 2400;
+				meshCeiling.scale.y = 80;
+				meshCeiling.scale.z = 1000;
 				meshCeiling.position.x = 8000;
 				meshCeiling.position.y = 500;
 				meshCeiling.position.z = 400;
@@ -367,14 +366,13 @@
 				scene.add( meshCeiling );
 				
         
-        var ambientColor = new THREE.Color(1,1,1);
-        var ambientLight = new THREE.AmbientLight(ambientColor.getHex());
+        var ambientLight = new THREE.AmbientLight(0xffffff);
 				scene.add( ambientLight );
 				
 				for (i = 0; i<10;i++) {
   				var light = new THREE.PointLight( 0xffffff, 2, 300 );
   				light.position.z = 400;
-  				light.position.x = (2500*i+1);
+  				light.position.x = (2300*i+1);
   				light.position.y = 400;
   				scene.add( light );
 				}
@@ -418,7 +416,7 @@
                 
             if (!peopleEnabled) dae.position.y += 4000;
 
-            var acc = fps/30;// +Math.random()/10*fps/30;
+            var acc = 7;//Math.random()*4 + 2;
             
             objectArray.push({person: dae, velocity: acc});
             
@@ -438,7 +436,7 @@
                   GREET/WAVE - 128-200
   							*/
   							
-  							animation.play(9/30,32/30, acc);
+  							animation.play(9/30,32/30, fps/30);
   							
   							/*
   					    setTimeout(function() {animation.play(25/24,55/24);}, 5000);
@@ -663,14 +661,13 @@
 				container.appendChild( renderer.domElement );
 				animate();
 				
-				setTimeout(function(){
-  				controls = new THREE.FirstPersonControls( camera );
-  				controls.movementSpeed = 300;
-  				if(audioEnabled) controls.audio = true;
-  				controls.lookSpeed = 0.10;
-  				controls.lookVertical = false;
-          controlsReady = true;
-				},2000);
+				controls = new THREE.FirstPersonControls( camera );
+				controls.movementSpeed = 300;
+				if(audioEnabled) controls.audio = true;
+				controls.lookSpeed = 0.10;
+				controls.lookVertical = false;
+        controlsReady = true;
+			
       }
       
 			function animate() {
@@ -680,7 +677,7 @@
         }, 1000 / fps );
 
 				for (i=0;i<objectArray.length;i++){
-				  objectArray[i].person.position.x -= objectArray[i].velocity * 15;
+				  objectArray[i].person.position.x -= objectArray[i].velocity;
 				  objectArray[i].person.position.z -= Math.random() - 0.5;
 				  if (objectArray[i].person.position.x<-400) objectArray[i].person.position.x = 21000;
 				}
