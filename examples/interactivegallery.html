@@ -103,7 +103,7 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 15000 );
+				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 16000 );
 				camera.position.z = 400;
 				camera.position.x = 0;
 				camera.position.y = 162;
@@ -111,8 +111,9 @@
 				
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0xcccccc, 14000, 15000 );
+				scene.fog = new THREE.Fog( 0xcccccc, 14000, 16000 );
 
+				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 				// FLOOR
         
 				function mipmap( size, color ) {
@@ -147,7 +148,6 @@
 
 				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.8 });
 
-				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
 				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
 				meshCanvas.rotation.x = -Math.PI / 2;
@@ -387,7 +387,7 @@
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.domElement.style.position = "relative";
 
-
+/*
 				// MIRROR planes
 				groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: SCREEN_WIDTH, textureHeight: SCREEN_HEIGHT, color: 0xcccccc} );
 				
@@ -401,7 +401,7 @@
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
 				scene.add( mirrorMesh );
-				
+	*/			
 	      window.addEventListener( 'resize', onWindowResize, false );
 
         
@@ -627,7 +627,7 @@
         if (peopleEnabled) {
             
   				for (i=0;i<objectArray.length;i++){
-  				  objectArray[i].person.position.y -= 400;
+  				  objectArray[i].person.position.y += 4000;
   				}
   				
           $("#peoplebutton").css({"opacity": 0.4});
@@ -691,7 +691,7 @@
 				var delta = clock.getDelta();
 				if (controlsReady) controls.update( delta );
 				THREE.AnimationHandler.update(delta);
-				groundMirror.render();
+				//groundMirror.render();
 				renderer.render( scene, camera );
 
 			}
