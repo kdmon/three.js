@@ -105,26 +105,26 @@
 
 				}
 
-				var canvas = mipmap( 128, '#888' );
+				var canvas = mipmap( 128, '#111' );
 				var textureCanvas = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
 				textureCanvas.repeat.set( 1000, 1000 );
 				textureCanvas.mipmaps[ 0 ] = canvas;
-				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#888' );
-				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#888' );
-				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#888' );
-				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#888' );
-				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#aaa' );
-				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#bbb' );
-				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#ccc' );
+				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#111' );
+				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#111' );
+				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#111' );
+				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#222' );
+				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#333' );
+				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#444' );
+				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#555' );
 				textureCanvas.needsUpdate = true;
 
-				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.35 });
+				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.85 });
 
 				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
 
 				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
 				meshCanvas.rotation.x = -Math.PI / 2;
-				meshCanvas.scale.set(800, 800, 800);
+				meshCanvas.scale.set(400, 400, 400);
 				meshCanvas.position.y = 0;
 				scene.add( meshCanvas );
 
@@ -292,9 +292,7 @@
           "PC287861.JPG",
           "P1120446a.JPG",
           "P1120447.JPG",
-          "P1120594a.JPG",
-          "PC27835.JPG",
-          "PC27836.JPG"
+          "P1120594a.JPG"
           ];
 
         for(i=0;i<thumbs.length;i++) {
@@ -340,7 +338,7 @@
 				scene.add( ambientLight );
 				
 				for (i = 0; i<10;i++) {
-  				var light = new THREE.PointLight( 0xffffff, 5, 300 );
+  				var light = new THREE.PointLight( 0xffffff, 2, 300 );
   				light.position.z = 400;
   				light.position.x = (2500*i+1);
   				light.position.y = 200;
@@ -385,7 +383,10 @@
             dae.position.z = z;
             dae.position.x = x;
             
-            objectArray.push(dae);
+            var acc = Math.random();
+            acc += 0.5;
+            
+            objectArray.push({person: dae, velocity: acc});
             
   					collada.scene.traverse( function ( child ) {
   
@@ -403,7 +404,7 @@
                   GREET/WAVE - 128-200
   							*/
   							
-  							animation.play(10/24,31/24);
+  							animation.play(9/24,29/24, acc);
   							
   							/*
   					    setTimeout(function() {animation.play(25/24,55/24);}, 5000);
@@ -523,8 +524,9 @@
 			function animate() {
 				requestAnimationFrame( animate );
 				for (i=1;i<objectArray.length;i++){
-				  objectArray[i-1].position.x -=5;
-				  if (objectArray[i-1].position.x<-10) objectArray[i-1].position.x = 22000;
+				  objectArray[i-1].person.position.x -= objectArray[i-1].velocity * 6.5;
+				  objectArray[i-1].person.position.z -= Math.random() - 0.5;
+				  if (objectArray[i-1].person.position.x<-400) objectArray[i-1].person.position.x = 21000;
 				}
 				render();
 			}
