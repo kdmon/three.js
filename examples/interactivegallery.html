@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Interactive Gallery</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ccc;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				background-color: #111;
+				margin: 0px;
+				overflow: hidden;
+				background-image: url("http://upload.wikimedia.org/wikipedia/commons/d/de/Ajax-loader.gif");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center; 
+			}
+
+		</style>
+	</head>
+
+	<body onload="start();">
+	  <h1 style="color:white">Interactive Gallery</h1>
+
+
+		<script src="../build/three.js"></script>
+
+
+		<script src="js/Mirror.js"></script>
+		<script src="js/controls/FirstPersonControls.js"></script>
+		
+		<script src="js/loaders/ColladaLoader.js"></script>
+		<script src="js/Detector.js"></script>
+		<script src="js/libs/stats.min.js"></script>
+
+		<script src="fonts/droid/droid_sans_regular.typeface.js"></script>
+		
+		<script>
+
+			if ( !Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var SCREEN_WIDTH = 1024;//window.innerWidth;
+			var SCREEN_HEIGHT = 600;//window.innerHeight;
+
+      var scale = 100;
+      
+			var container, stats, dae;
+			
+			var controlsReady = false;
+
+			var camera, controls, scene, groundMirror, renderer;
+
+			var clock = new THREE.Clock();
+			
+      var objectArray = [];
+			
+			init();
+
+
+			function init() {
+        var ambientsound = new Audio ("http://freesound.org/data/previews/79/79706_623488-lq.mp3");
+        ambientsound.play();
+                
+        ambientsound.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        }, false);
+        
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 5000 );
+				camera.position.z = 400;
+				camera.position.x = -400;
+				camera.position.y = 162;
+				camera.rotation.y = (Math.PI/180)*-90;
+				
+
+				scene = new THREE.Scene();
+				scene.fog = new THREE.Fog( 0xaaaaaa, 2500, 6000 );
+
+				// FLOOR
+        
+				function mipmap( size, color ) {
+
+					var imageCanvas = document.createElement( "canvas" ),
+						context = imageCanvas.getContext( "2d" );
+
+					imageCanvas.width = imageCanvas.height = size;
+
+					context.fillStyle = "#000";
+					context.fillRect( 0, 0, size, size );
+
+					context.fillStyle = color;
+					context.fillRect( 0, 0, size / 2, size / 2 );
+					context.fillRect( size / 2, size / 2, size / 2, size / 2 );
+					return imageCanvas;
+
+				}
+
+				var canvas = mipmap( 128, '#111' );
+				var textureCanvas = new THREE.Texture( canvas, THREE.UVMapping, THREE.RepeatWrapping, THREE.RepeatWrapping );
+				textureCanvas.repeat.set( 1000, 1000 );
+				textureCanvas.mipmaps[ 0 ] = canvas;
+				textureCanvas.mipmaps[ 1 ] = mipmap( 64, '#111' );
+				textureCanvas.mipmaps[ 2 ] = mipmap( 32, '#111' );
+				textureCanvas.mipmaps[ 3 ] = mipmap( 16, '#111' );
+				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#222' );
+				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#333' );
+				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#444' );
+				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#555' );
+				textureCanvas.needsUpdate = true;
+
+				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.85 });
+
+				var geometry = new THREE.PlaneBufferGeometry( 100, 100 );
+
+				var meshCanvas = new THREE.Mesh( geometry, materialCanvas1 );
+				meshCanvas.rotation.x = -Math.PI / 2;
+				meshCanvas.scale.set(400, 400, 400);
+				meshCanvas.position.y = 0;
+				scene.add( meshCanvas );
+
+        function addText (sentence, x, y, z, rotation){
+          
+        	// add 3D text
+        	var materialFront = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+        	var materialSide = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+        	var materialArray = [ materialFront, materialSide ];
+        	var textGeom = new THREE.TextGeometry( sentence, 
+        	{
+        		size: 2, height: 0, curveSegments: 1,
+        		font: "droid sans", weight: "normal", style: "normal",
+        		bevelThickness: 0, bevelSize: 0, bevelEnabled: false,
+        		material: 0, extrudeMaterial: 0
+        	});
+        	
+        	var textMaterial = new THREE.MeshFaceMaterial(materialArray);
+        	var textMesh = new THREE.Mesh(textGeom, textMaterial );
+        	
+        	textMesh.position.set(x,y,z+1);
+        	textMesh.rotation.y = rotation * (Math.PI/180);
+        	scene.add(textMesh);
+        }
+        
+        
+
+  			function addPainting (url, name, x, z, rotation){
+  			  x = x*250;
+  			  z = z*800;
+  				var newimage = new Image();
+  			  newimage.crossOrigin="";
+  				var texturePainting = new THREE.Texture( newimage, THREE.UVMapping );
+  				newimage.onload = function () {
+  				  texturePainting.needsUpdate = true;
+  					var image = texturePainting.image;
+  					var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
+  					var mesh = new THREE.Mesh( geometry, materialPainting);
+  					var scalingfactor = scale/image.width;
+  					
+  					addText(name, x+ 100, 75, z-2+rotation* (Math.PI / 180), rotation);
+  					addText("2015", x+ 100, 70, z-2+rotation* (Math.PI / 180), rotation);
+
+  					/*
+  					var meshLabel = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xffffff, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshLabel.scale.x = 2.2;
+  					meshLabel.scale.y = 2.2;
+  					meshLabel.position.x = x+105;
+  					meshLabel.position.y = 75;
+  					meshLabel.position.z = z-1+rotation* (Math.PI / 180);
+  					meshLabel.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( meshLabel );
+  					*/
+
+  					mesh.scale.x = scale/image.width * image.width/5  * (image.width/image.height);
+  					mesh.scale.y = scale/image.height * image.height/5;
+  					mesh.position.x = x;
+  					mesh.position.y = 160 + 20*(scale/image.height);
+  					mesh.position.z = z;
+  					mesh.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( mesh );
+  					
+  					var meshFrame = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x000000, opacity: 0.75, transparent: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshFrame.scale.x = scale/image.width * image.width/5  * (image.width/image.height)*1.05;
+  					meshFrame.scale.y = scale/image.height * image.height/5*1.05;
+  					meshFrame.position.x = x;
+  					meshFrame.position.y = 160 + 20*(scale/image.height);
+  					meshFrame.position.z = z;
+  					meshFrame.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( meshFrame );
+  					
+  					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+  					meshWall.scale.x = 30 * image.width / 100;
+  					meshWall.scale.y = 30 * image.height / 100;
+  					meshWall.position.x = x;
+  					meshWall.position.y = 50 + (image.height/100)/2;
+  					meshWall.position.z = z-1+rotation* (Math.PI / 180);
+  					meshWall.rotation.y = rotation * (Math.PI / 180);
+  					scene.add( meshWall );
+    
+    			};
+    		  newimage.src = url;
+  				var materialPainting = new THREE.MeshBasicMaterial( { color: 0xffffff, map: texturePainting } );
+  				texturePainting.minFilter = texturePainting.magFilter = THREE.LinearFilter;
+
+  			}
+
+        var thumbs = [
+          "P1120961.JPG",
+          "P1120963.JPG",
+          "P1120969.JPG",
+          "P1120973.JPG",
+          "P1120983.JPG",
+          "P1190074.JPG",
+          "P1190076.JPG",
+          "P1190078.JPG",
+          "P1190084.JPG",
+          "P1190086.JPG",
+          "P1190088.JPG",
+          "P1190092.JPG",
+          "P1190095.JPG",
+          "P1190097.JPG",
+          "P1190099.JPG",
+          "P1190102.JPG",
+          "P1190106.JPG",
+          "PC308017.JPG",
+          "PC308019.JPG",
+          "P1120986.JPG",
+          "P1120995.JPG",
+          "P1130001.JPG",
+          "P1130004.JPG",
+          "P1130006.JPG",
+          "P1130009.JPG",
+          "P1130011.JPG",
+          "P1130014.JPG",
+          "P1130015.JPG",
+          "P1130018.JPG",
+          "P1130020.JPG",
+          "P1130023.JPG",
+          "P1130024.JPG",
+          "P1130027.JPG",
+          "P1130028.JPG",
+          "P1130031.JPG",
+          "P1130034.JPG",
+          "P1130035.JPG",
+          "P1130038.JPG",
+          "P1130039.JPG",
+          "BH.JPG",
+          "P1120914.JPG",
+          "P1120915.JPG",
+          "P1120916.JPG",
+          "P1120919.JPG",
+          "P1120924.JPG",
+          "P1120925.JPG",
+          "P1120926.JPG",
+          "P1120933.JPG",
+          "P1120935.JPG",
+          "P1120939.JPG",
+          "P1120943.JPG",
+          "P1120948.JPG",
+          "P1120949.JPG",
+          "P1120958.JPG",
+          "P1120959.JPG",
+          "P1130042.JPG",
+          "PC297865.JPG",
+          "P1190094.JPG",
+          "PC287837.JPG",
+          "PC287838.JPG",
+          "PC287839.JPG",          
+          "PC287840.JPG",          
+          "PC287841a.JPG",          
+          "PC287843.JPG",          
+          "PC287844.JPG",
+          "PC287845.JPG",
+          "PC287847.JPG",
+          "PC287850.JPG",
+          "PC287851.JPG",
+          "PC287852.JPG",
+          "PC287853.JPG",
+          "PC287855.JPG",
+          "PC287856.JPG",
+          "PC287857.JPG",
+          "PC287859.JPG",
+          "PC287860.JPG",
+          "PC287861.JPG",
+          "P1120446a.JPG",
+          "P1120447.JPG",
+          "P1120594a.JPG"
+          ];
+          
+          function shuffle(o){ //v1.0
+              for(var j, x, i = o.length; i; j = Math.floor(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x);
+              return o;
+          };
+          
+          shuffle(thumbs);
+
+        for(i=0;i<thumbs.length;i++) {
+          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
+        }
+        
+        
+    
+				var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+				meshWall.scale.x = 20;
+				meshWall.scale.y = 10;
+				meshWall.position.x = -400;
+				meshWall.position.y = 0
+				meshWall.position.z = 100
+				meshWall.rotation.y = 90 * (Math.PI / 180);
+				scene.add( meshWall );
+				
+				
+				meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xcccccc, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
+				meshWall.scale.x = 20;
+				meshWall.scale.y = 10;
+				meshWall.position.x = 20000;
+				meshWall.position.y = 0
+				meshWall.position.z = 100
+				meshWall.rotation.y = -90 * (Math.PI / 180);
+				scene.add( meshWall );
+
+				
+    		var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xeeeeee, specular: 0xffffff, shininess: 0, metal: false } );
+				var meshCeiling = new THREE.Mesh( geometry, meshMaterial);
+				meshCeiling.scale.x = 240;
+				meshCeiling.scale.y = 8;
+				meshCeiling.scale.z = 100;
+				meshCeiling.position.x = 8000;
+				meshCeiling.position.y = 390;
+				meshCeiling.position.z = 400;
+				meshCeiling.rotation.x = 90 * (Math.PI / 180);
+				scene.add( meshCeiling );
+				
+        
+        var ambientColor = new THREE.Color(1,1,1);
+        var ambientLight = new THREE.AmbientLight(ambientColor.getHex());
+				scene.add( ambientLight );
+				
+				for (i = 0; i<0;i++) {
+  				var light = new THREE.PointLight( 0xffffff, 2, 300 );
+  				light.position.z = 400;
+  				light.position.x = (2500*i+1);
+  				light.position.y = 200;
+  				scene.add( light );
+				}
+
+				renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+				renderer.autoClear = true;
+				//renderer.setClearColor( 0xcccccc, 1);
+				renderer.setClearColor( scene.fog.color,1 );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+				renderer.domElement.style.position = "relative";
+
+
+				// MIRROR planes
+				groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: SCREEN_WIDTH, textureHeight: SCREEN_HEIGHT, color: 0xcccccc} );
+				
+				var mirrorMesh = new THREE.Mesh( geometry, groundMirror.material );
+				mirrorMesh.scale.x=240;
+				mirrorMesh.scale.y=8;
+				meshCeiling.scale.z = 100;
+				mirrorMesh.position.x = 8000;
+				mirrorMesh.position.y = -1;
+				mirrorMesh.position.z = 400;
+				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
+				mirrorMesh.add( groundMirror );
+				//scene.add( mirrorMesh );
+				
+	      window.addEventListener( 'resize', onWindowResize, false );
+
+        
+        function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, fps) {
+  				var loader = new THREE.ColladaLoader();
+  				loader.load( url, function ( collada ) {
+  
+            var dae = collada.scene;
+            dae.scale.x = dae.scale.y = dae.scale.z = scaling;
+            dae.rotation.x = -90 * (Math.PI/180);
+            dae.rotation.z = rotation * (Math.PI/180);
+            dae.position.z = z;
+            dae.position.x = x;
+            
+            var acc = Math.random();
+            acc += 0.3;
+            
+            objectArray.push({person: dae, velocity: acc});
+            
+  					collada.scene.traverse( function ( child ) {
+  
+  						if ( child instanceof THREE.SkinnedMesh && (animate == true)) {
+  
+  							var animation = new THREE.Animation( child, child.geometry.animation);
+  							
+  							/*
+    							STARt WALK - 0-10
+    							WALKCYCLE - 10-31
+                  LOOK - 35-55
+                  JUMP - 55-80
+                  SIT DOWN - 110-120
+                  SIT UP - 120-128
+                  GREET/WAVE - 128-200
+  							*/
+  							
+  							animation.play(9/24,29/24, acc);
+  							
+  							/*
+  					    setTimeout(function() {animation.play(25/24,55/24);}, 5000);
+  					    setTimeout(function() {animation.play(55/24,80/24);}, 10000);
+  					    setTimeout(function() {animation.play(110/24,120/24);}, 12000);
+  					    setTimeout(function() {animation.play(120/24,121/24);}, 12200);
+  					    setTimeout(function() {animation.play(120/24,128/24);}, 15000);
+  					    setTimeout(function() {animation.play(129/24,200/24);}, 15200);
+  					    */
+  						}
+  
+  					} );
+  
+  					scene.add( collada.scene );
+  
+  				} );
+        }
+        
+        /*addPerson ("./models/collada/multimaterial.dae", 20, 600, 2350, 0);
+        addPerson ("./models/collada/monster/monster.dae", 0.07, 600, 2500, 180,0);
+        addPerson ("./models/collada/avatar.dae", 105, 500, 12000, 0);
+        */
+        /*
+        addPerson ("./models/collada/female2.dae", 100, 300, 2800, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/female2.dae", 105, 500, 5600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 110, 200, 7600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 105, 600, 4600, -90, 1, 9, 30, 24);
+        
+        
+        addPerson ("./models/collada/female2.dae", 105, 300, 12800, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 105, 500, 15600, -90, 1, 9, 30, 24);
+        */
+        addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/avatar.dae", 110, 200, 17600, -90, 1, 9, 30, 24);
+        
+          /*
+  			function ensureLoop( animation ) {
+  
+  				for ( var i = 0; i < animation.hierarchy.length; i ++ ) {
+  
+  					var bone = animation.hierarchy[ i ];
+  
+  					var first = bone.keys[ 0 ];
+  					var last = bone.keys[ bone.keys.length - 1 ];
+  
+  					last.pos = first.pos;
+  					last.rot = first.rot;
+  					last.scl = first.scl;
+  
+  				}
+  
+  			}
+  			
+				var loader = new THREE.JSONLoader();
+        
+				loader.load( "models/skinned/human_walk_0_female.js", function ( geometry, materials ) {
+
+					geometry.computeVertexNormals();
+					geometry.computeBoundingBox();
+
+					ensureLoop( geometry.animation );
+					
+					
+
+					for ( var i = 0, il = materials.length; i < il; i ++ ) {
+
+						var originalMaterial = materials[ i ];
+						originalMaterial.skinning = true;
+
+						originalMaterial.map = undefined;
+						originalMaterial.shading = THREE.SmoothShading;
+						//originalMaterial.color.setHSL( 0.5, 0.5, 0.5 );
+						originalMaterial.color.setRGB (0.8,0.8,0.8);
+						originalMaterial.specular.setRGB( 1, 1, 1 );
+						originalMaterial.shininess = 75;
+
+						originalMaterial.wrapAround = true;
+						originalMaterial.wrapRGB.set( 0.9, 0.5, 0.5 );
+
+					}
+
+					var s = 50;
+
+					var material = new THREE.MeshFaceMaterial( materials );
+					var mesh = new THREE.SkinnedMesh( geometry, material, false );
+					mesh.scale.set( s, s, s );
+
+					mesh.rotation.y = Math.PI/2;
+
+					mesh.position.x = 400;
+					mesh.position.y = 165;
+					mesh.position.z = 400;
+
+					mesh.userData.delta = 25;
+
+					scene.add( mesh );
+					//skins.push( mesh );
+
+
+					animation = new THREE.Animation( mesh, geometry.animation );
+					animation.play();
+					animation.update( 0 );
+		  });*/
+		
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = SCREEN_WIDTH/SCREEN_HEIGHT//window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			controls.handleResize();
+
+			renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+//			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+
+      function start () {
+        
+				container.appendChild( renderer.domElement );
+				animate();
+				
+				setTimeout(function(){
+  				controls = new THREE.FirstPersonControls( camera );
+  				controls.movementSpeed = 300;
+  				controls.audio = true;
+  				controls.lookSpeed = 0.10;
+  				controls.lookVertical = false;
+          controlsReady = true;
+				},2000);
+      }
+      
+			function animate() {
+				requestAnimationFrame( animate );
+				for (i=0;i<objectArray.length;i++){
+				  objectArray[i-1].person.position.x -= objectArray[i-1].velocity * 6.5;
+				  objectArray[i-1].person.position.z -= Math.random() - 0.5;
+				  if (objectArray[i-1].person.position.x<-400) objectArray[i-1].person.position.x = 21000;
+				}
+				render();
+			}
+
+			function render() {
+				var delta = clock.getDelta();
+				if (controlsReady) controls.update( delta );
+				THREE.AnimationHandler.update(delta);
+				//groundMirror.render();
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
