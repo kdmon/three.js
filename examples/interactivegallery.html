@@ -56,7 +56,7 @@
 		<script src="../build/three.js"></script>
 
 		<script src="js/Mirror.js"></script>
-		<script src="js/controls/FirstPersonControls.js"></script>
+		<script src="js/controls/FirstPersonControls_touch.js"></script>
 		
 		<script src="js/loaders/ColladaLoader.js"></script>
 		<script src="js/Detector.js"></script>
@@ -68,8 +68,9 @@
 
 			if ( !Detector.webgl ) Detector.addGetWebGLMessage();
 
+      var HEADER_HEIGHT = 60;
 			var SCREEN_WIDTH = window.innerWidth;
-			var SCREEN_HEIGHT = window.innerHeight - 70;
+			var SCREEN_HEIGHT = window.innerHeight - HEADER_HEIGHT;
 
       var scale = 100;
       
@@ -93,6 +94,8 @@
 			
 			var fps = 20;
 			
+			var projector, mouseVector, objectContainer;
+			
 			var fullscreen = false;
 			
 			init();
@@ -110,10 +113,13 @@
 				camera.position.y = 162;
 				camera.rotation.y = (Math.PI/180)*-90;
 				
-
+    				
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xcccccc, 3000, 6000 );
 
+        objectContainer = new THREE.Object3D();
+        scene.add(objectContainer);
+        
 				var geometry = new THREE.PlaneBufferGeometry( 10, 10 );
 				// FLOOR
         
@@ -222,7 +228,8 @@
   					meshFrame.position.y = 160 + 20*(scale/image.height);
   					meshFrame.position.z = z;
   					meshFrame.rotation.y = rotation * (Math.PI / 180);
-  					scene.add( meshFrame );
+  					objectContainer.add(meshFrame);
+  					//scene.add( meshFrame );
   					
   					var meshWall = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xdddddd, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 5 } ) );
   					meshWall.scale.x = 30 * image.width / 100;
@@ -401,7 +408,6 @@
 				mirrorMesh.add( groundMirror );
 				scene.add( mirrorMesh );
 	*/			
-	      window.addEventListener( 'resize', onWindowResize, false );
 
         
         function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, fps) {
@@ -473,76 +479,34 @@
         addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/avatar.dae", 110, 200, 25900, -90, 1, 9, 30, 24);
         
-          /*
-  			function ensureLoop( animation ) {
-  
-  				for ( var i = 0; i < animation.hierarchy.length; i ++ ) {
-  
-  					var bone = animation.hierarchy[ i ];
-  
-  					var first = bone.keys[ 0 ];
-  					var last = bone.keys[ bone.keys.length - 1 ];
-  
-  					last.pos = first.pos;
-  					last.rot = first.rot;
-  					last.scl = first.scl;
-  
-  				}
-  
-  			}
-  			
-				var loader = new THREE.JSONLoader();
-        
-				loader.load( "models/skinned/human_walk_0_female.js", function ( geometry, materials ) {
-
-					geometry.computeVertexNormals();
-					geometry.computeBoundingBox();
-
-					ensureLoop( geometry.animation );
-					
-					
-
-					for ( var i = 0, il = materials.length; i < il; i ++ ) {
-
-						var originalMaterial = materials[ i ];
-						originalMaterial.skinning = true;
-
-						originalMaterial.map = undefined;
-						originalMaterial.shading = THREE.SmoothShading;
-						//originalMaterial.color.setHSL( 0.5, 0.5, 0.5 );
-						originalMaterial.color.setRGB (0.8,0.8,0.8);
-						originalMaterial.specular.setRGB( 1, 1, 1 );
-						originalMaterial.shininess = 75;
-
-						originalMaterial.wrapAround = true;
-						originalMaterial.wrapRGB.set( 0.9, 0.5, 0.5 );
-
-					}
-
-					var s = 50;
-
-					var material = new THREE.MeshFaceMaterial( materials );
-					var mesh = new THREE.SkinnedMesh( geometry, material, false );
-					mesh.scale.set( s, s, s );
-
-					mesh.rotation.y = Math.PI/2;
-
-					mesh.position.x = 400;
-					mesh.position.y = 165;
-					mesh.position.z = 400;
-
-					mesh.userData.delta = 25;
-
-					scene.add( mesh );
-					//skins.push( mesh );
-
-
-					animation = new THREE.Animation( mesh, geometry.animation );
-					animation.play();
-					animation.update( 0 );
-		  });*/
 		
+        // Picking stuff
+			 raycaster = new THREE.Raycaster();
+        mouseVector = new THREE.Vector3();
+        
+	    window.addEventListener( 'resize', onWindowResize, false );
+      window.addEventListener( 'mousemove', onMouseMove, false );
+      window.addEventListener( 'touchmove', onMouseMove, false );
 		}
+		
+    		
+    function onMouseMove( e ) {
+      mouseVector.x = 2 * (e.clientX / SCREEN_WIDTH) - 1;
+      mouseVector.y = 1 - 2 * ((e.clientY - HEADER_HEIGHT) / (SCREEN_HEIGHT));
+      
+      raycaster.setFromCamera( mouseVector, camera );
+      var intersects = raycaster.intersectObjects( objectContainer.children );
+      
+      objectContainer.children.forEach(function( frame ) {
+        frame.material.color.setRGB( 0.1,0.1, 0.1 );
+      });
+      
+      for( var i = 0; i < intersects.length; i++ ) {
+        var intersection = intersects[ i ],
+        obj = intersection.object;
+        obj.material.color.setRGB( 1, 1, 1 );
+      }
+    }
 		
 		$(document).on("webkitfullscreenchange mozfullscreenchange fullscreenchange",function(){
         onWindowResize();
@@ -551,7 +515,7 @@
 		function onWindowResize() {
 		  
 			SCREEN_WIDTH = window.innerWidth;
-			SCREEN_HEIGHT = window.innerHeight - 70;
+			SCREEN_HEIGHT = window.innerHeight - HEADER_HEIGHT;
 
 			camera.aspect = SCREEN_WIDTH/SCREEN_HEIGHT//window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
@@ -667,6 +631,7 @@
 				if(audioEnabled) controls.audio = true;
 				controls.lookSpeed = 0.10;
 				controls.lookVertical = false;
+				controls.header = HEADER_HEIGHT;
         controlsReady = true;
 			
       }
