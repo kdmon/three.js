@@ -127,7 +127,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 	this.onMouseMove = function ( event ) {
 	  
-	  if (event.pageY > 80){
+	  if (event.pageY > 80 && this.mouseDragOn){
   
   		if ( this.domElement === document ) {
   
@@ -142,6 +142,8 @@ THREE.FirstPersonControls = function ( object, domElement ) {
   		}
 	    
 	  }
+	  
+	  else {this.mouseX=0;this.mouseY=0;}
 
 	};
 
