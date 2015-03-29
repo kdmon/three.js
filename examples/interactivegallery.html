@@ -92,7 +92,7 @@
 			if (!audioEnabled) $("#audiobutton").css({opacity: 0.4});
 			if (!peopleEnabled) $("#peoplebutton").css({opacity: 0.4});
 			
-			var fps = 20;
+			var fps = 24;
 			
 			var projector, mouseVector, objectContainer;
 			
@@ -410,10 +410,10 @@
 	*/			
 
         
-        function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, animationfps) {
+        function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, animationfps, tempo) {
   				var loader = new THREE.ColladaLoader();
   				loader.load( url, function ( collada ) {
-  
+            tempo = tempo !== undefined ? tempo : 1;
             var dae = collada.scene;
             dae.scale.x = dae.scale.y = dae.scale.z = scaling;
             dae.rotation.x = -90 * (Math.PI/180);
@@ -422,8 +422,8 @@
             dae.position.x = x;
                 
             if (!peopleEnabled) dae.position.y += 4000;
-
-            var acc = 7;//Math.random()*4 + 2;
+           
+            var acc = 8 * tempo ; // fps * (1/8);//Math.random()*4 + 2;
             
             objectArray.push({person: dae, velocity: acc});
             
@@ -443,7 +443,7 @@
                   GREET/WAVE - 128-200
   							*/
   							
-  							animation.play(keystart/animationfps,keystop/animationfps, fps/animationfps);
+  							animation.play(keystart/animationfps,keystop/animationfps, 1*tempo);
   							
   							/*
   					    setTimeout(function() {animation.play(25/24,55/24);}, 5000);
@@ -476,8 +476,8 @@
         addPerson ("./models/collada/female2.dae", 105, 300, 12800, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/avatar.dae", 105, 500, 15600, -90, 1, 9, 30, 24);
          */
-        addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 6, 27, 24);
-        addPerson ("./models/collada/avatar.dae", 110, 200, 5900, -90, 1, 6, 27, 24);
+        addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 6, 27, 24, 0.9);
+        addPerson ("./models/collada/avatar.dae", 110, 200, 5900, -90, 1, 6, 27, 24, 0.8);
         
 		
         // Picking stuff
