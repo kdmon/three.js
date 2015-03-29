@@ -410,7 +410,7 @@
 	*/			
 
         
-        function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, fps) {
+        function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, animationfps) {
   				var loader = new THREE.ColladaLoader();
   				loader.load( url, function ( collada ) {
   
@@ -443,7 +443,7 @@
                   GREET/WAVE - 128-200
   							*/
   							
-  							animation.play(9/30,32/30, fps/30);
+  							animation.play(keystart/animationfps,keystop/animationfps, fps/animationfps);
   							
   							/*
   					    setTimeout(function() {animation.play(25/24,55/24);}, 5000);
@@ -476,7 +476,7 @@
         addPerson ("./models/collada/female2.dae", 105, 300, 12800, -90, 1, 9, 30, 24);
         addPerson ("./models/collada/avatar.dae", 105, 500, 15600, -90, 1, 9, 30, 24);
          */
-        addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 9, 30, 24);
+        addPerson ("./models/collada/female2.dae", 100, 600, 10600, -90, 1, 6, 27, 24);
         addPerson ("./models/collada/avatar.dae", 110, 200, 5900, -90, 1, 6, 27, 24);
         
 		
