@@ -50,7 +50,8 @@
 	<body onload="start();">
 	  <img id="audiobutton" title="Toggle audio" onclick="toggleAudio()" style="left: 0px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Topeka-music.svg/240px-Topeka-music.svg.png" class="icon enabled"/>
 	  <img id="peoplebutton" title="Toggle virtual visitors" onclick="togglePeople()" style="left: 70px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Topeka-entertainment.svg/240px-Topeka-entertainment.svg.png" class="icon"/>
-	  <img id="fullscreenbutton" title="Toggle virtual visitors" onclick="toggleFullscreen()" class="icon" style="padding-left: 5px; padding-right: 5px; right: 0px; opacity: 0.4;" src="http://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Octicons-screen-full.svg/210px-Octicons-screen-full.svg.png"/>
+	  <img id="qualitybutton" title="Toggle quality" onclick="toggleQuality()" style="right: 70px" src="http://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Ic_high_quality_48px.svg/240px-Ic_high_quality_48px.svg.png" class="icon"/>
+	  <img id="fullscreenbutton" title="Toggle fullscreen" onclick="toggleFullscreen()" class="icon" style="padding-left: 5px; padding-right: 5px; right: 0px; opacity: 0.4;" src="http://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Octicons-screen-full.svg/210px-Octicons-screen-full.svg.png"/>
 	  <h1 id="pageheading" style="color:white">Interactive Gallery</h1>
 
 		<script src="../build/three.js"></script>
@@ -78,7 +79,7 @@
 			
 			var controlsReady = false;
 
-			var camera, controls, scene, groundMirror, renderer;
+			var camera, controls, scene, groundMirror, mirrorMesh, renderer;
 
 			var clock = new THREE.Clock();
 			
@@ -86,11 +87,13 @@
       
       var peopleEnabled = localStorage["showpeople"] ? JSON.parse(localStorage["showpeople"]): true;
       var audioEnabled = localStorage["audio"] ? JSON.parse(localStorage["audio"]): true;
+      var hdEnabled = localStorage["hd"] ? JSON.parse(localStorage["hd"]): false;
       
 			var ambientsound = new Audio ("http://freesound.org/data/previews/79/79706_623488-lq.mp3");
 			
 			if (!audioEnabled) $("#audiobutton").css({opacity: 0.4});
 			if (!peopleEnabled) $("#peoplebutton").css({opacity: 0.4});
+			if (!hdEnabled) $("#qualitybutton").css({opacity: 0.4});
 			
 			var fps = 24;
 			
@@ -150,7 +153,7 @@
 				textureCanvas.mipmaps[ 4 ] = mipmap( 8, '#ddd' );
 				textureCanvas.mipmaps[ 5 ] = mipmap( 4, '#ddd' );
 				textureCanvas.mipmaps[ 6 ] = mipmap( 2, '#ddd' );
-				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#dcdcdc' );
+				textureCanvas.mipmaps[ 7 ] = mipmap( 1, '#ccc' );
 				textureCanvas.needsUpdate = true;
 
 				materialCanvas1 = new THREE.MeshBasicMaterial( { map: textureCanvas, transparent: true, opacity: 0.8 });
@@ -337,8 +340,9 @@
           
           shuffle(thumbs);
 
+          var imageSize = hdEnabled == true ? "large" : "thumbnail";
         for(i=0;i<thumbs.length;i++) {
-          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/medium/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
+          addPainting ("http://art.it4se.com/sites/art.it4se.com/files/styles/" + imageSize + "/public/" + thumbs[i], thumbs[i], i*1 - (i%2)*1, (i%2)*1, (i%2)*180)
         }
         
     
@@ -393,22 +397,21 @@
 				renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 				renderer.domElement.style.position = "relative";
 
-/*
 				// MIRROR planes
 				groundMirror = new THREE.Mirror( renderer, camera, { clipBias: 0.003, textureWidth: SCREEN_WIDTH, textureHeight: SCREEN_HEIGHT, color: 0xcccccc} );
 				
-				var mirrorMesh = new THREE.Mesh( geometry, groundMirror.material );
-				mirrorMesh.scale.x=240;
-				mirrorMesh.scale.y=8;
+				mirrorMesh = new THREE.Mesh( geometry, groundMirror.material );
+				mirrorMesh.scale.x=2400;
+				mirrorMesh.scale.y=80;
 				meshCeiling.scale.z = 100;
 				mirrorMesh.position.x = 8000;
 				mirrorMesh.position.y = -1;
 				mirrorMesh.position.z = 400;
 				mirrorMesh.rotation.x = -90 * (Math.PI / 180);
 				mirrorMesh.add( groundMirror );
-				scene.add( mirrorMesh );
-	*/			
-
+				
+				if (hdEnabled) scene.add( mirrorMesh );
+			
         
         function addPerson(url, scaling, z,x,rotation, animate, keystart, keystop, animationfps, tempo) {
   				var loader = new THREE.ColladaLoader();
@@ -608,11 +611,32 @@
 			  }
       }
       
+      function toggleQuality () {
+        
+        if (hdEnabled) {
+          fps = 24;
+  				scene.remove(mirrorMesh);
+            
+          $("#qualitybutton").css({"opacity": 0.4});
+          hdEnabled = false;
+          localStorage["hd"] = false;
+        }
+        
+        else {
+          fps = 60;
+  				scene.add(mirrorMesh);
+          hdEnabled = true;
+          $("#qualitybutton").css({"opacity": 1});
+          localStorage["hd"] = true;
+			  }
+      }
+      
       
       function start () {
       
         $("#peoplebutton").show();
         $("#audiobutton").show();
+        $("#qualitybutton").show();
         $("#fullscreenbutton").show();
         
 			  if (audioEnabled) {
@@ -639,22 +663,21 @@
 			function animate() {
 				//requestAnimationFrame( animate );
         setTimeout( function() {
-            requestAnimationFrame( animate );
+          requestAnimationFrame( animate );
+  				render();
         }, 1000 / fps );
-
-				for (i=0;i<objectArray.length;i++){
-				  objectArray[i].person.position.x -= objectArray[i].velocity;
-				  objectArray[i].person.position.z -= Math.random() - 0.5;
-				  if (objectArray[i].person.position.x<-400) objectArray[i].person.position.x = 21000;
-				}
-				render();
 			}
 
 			function render() {
 				var delta = clock.getDelta();
 				if (controlsReady) controls.update( delta );
 				THREE.AnimationHandler.update(delta);
-				//groundMirror.render();
+				for (i=0;i<objectArray.length;i++){
+  				  objectArray[i].person.position.x -= objectArray[i].velocity;
+  				  objectArray[i].person.position.z -= Math.random() - 0.5;
+  				  if (objectArray[i].person.position.x<-1000) objectArray[i].person.position.x = 21000;
+  				}
+				if (hdEnabled) groundMirror.render();
 				renderer.render( scene, camera );
 
 			}
