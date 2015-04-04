@@ -87,7 +87,7 @@
 			
       var objectArray = [];
       
-      var isMouseDown = false, startRotation = 0;
+      var isMouseDown = false, startRotation, cameraInertia = 0;
 
       
       var peopleEnabled = localStorage["showpeople"] ? JSON.parse(localStorage["showpeople"]): true;
@@ -130,6 +130,7 @@
     		
 
 				onMouseDownPosition = new THREE.Vector2();
+				startRotation = new THREE.Vector2();
 				
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xcccccc, 3000, 6000 );
@@ -518,13 +519,15 @@
 			function onDocumentMouseDown( event ) {
 
 				event.preventDefault();
+				cameraInertia = 0;
 
 				isMouseDown = true;
 
 				onMouseDownPosition.x = event.clientX;
 				onMouseDownPosition.y = event.clientY;
 				
-				startRotation = camera.rotation.y;
+				startRotation.x = camera.rotation.y;
+				startRotation.y = camera.rotation.z;
 
 			}
 
@@ -534,10 +537,11 @@
 
 				if ( isMouseDown ) {
 
-					var xdelta = ( ( event.clientX - onMouseDownPosition.x ) * 0.05 );
-					var ydelta = ( ( event.clientY - onMouseDownPosition.y ) * 0.05 );
+					var xdelta = ( ( event.clientX - onMouseDownPosition.x ) * 0.075 );
+					var ydelta = ( ( event.clientY - onMouseDownPosition.y ) * 0.025 );
 
-					camera.rotation.y = startRotation - xdelta * Math.PI / 360;
+					camera.rotation.y = startRotation.x - xdelta * Math.PI / 180;
+					//camera.rotation.z = startRotation.y - ydelta * Math.PI / 180;
 					camera.updateMatrix();
 
 				}
@@ -549,16 +553,19 @@
 				event.preventDefault();
 
 				isMouseDown = false;
-				cameraInertia = event.clientX - onMouseDownPosition.x;
-				
+				//cameraInertia = startRotation.x + ((event.clientX - onMouseDownPosition.x) * 0.05 * Math.PI/180);
+				console.log(cameraInertia);
 				onMouseDownPosition.x = event.clientX - onMouseDownPosition.x;
 				onMouseDownPosition.y = event.clientY - onMouseDownPosition.y;
 
-				if ( onMouseDownPosition.length() > 5 ) {
+        if (lookAt) {
+          camera.position.z = 400;
+          camera.position.x = lookAt.position.x;
+          camera.rotation.y = -lookAt.rotation.y;
+          //camera.lookAt(lookAt.position);
+          $("#pageheading").text(lookAt.title);
+        } 
 
-					return;
-
-				}
 			}
 			
     function onMouseMove( e ) {
@@ -839,17 +846,18 @@
         
         cameraInertia = cameraInertia - cameraInertia/10;
         if (Math.abs(cameraInertia) < 0.1) cameraInertia = 0;
-        if (cameraInertia !== 0) camera.rotation.y -= cameraInertia;
+        if (cameraInertia !== 0) camera.rotation.y -= cameraInertia * 0.02;
         
-        lookAt = 'Interactive Gallery';
+        // move forward
+        if (isMouseDown) camera.translateZ(-50*delta);
+        
+        lookAt = false;
         for( var i = 0; i < intersects.length; i++ ) {
           var intersection = intersects[ i ],
           obj = intersection.object;
           obj.material.color.setRGB( 1, 1, 1 );
-          lookAt = obj.title;
-          //camera.lookAt(obj.position)
+          lookAt = obj;
         }
-        $("#pageheading").text(lookAt);
         
 				renderer.render( scene, camera );
 
