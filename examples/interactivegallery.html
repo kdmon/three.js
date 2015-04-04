@@ -57,7 +57,9 @@
 		<script src="../build/three.js"></script>
 		<script src="http://it4se.com:8080/js/jquery.mobile-1.4.2.min.js"></script>
 		<script src="js/Mirror.js"></script>
-		<script src="js/controls/FirstPersonControls_touch.js"></script>
+		<script src="old-js/controls/FirstPersonControls_touch.js"></script>
+		
+		<script src="js/controls/PointerLockControls.js"></script>
 		
 		<script src="js/loaders/ColladaLoader.js"></script>
 		<script src="js/Detector.js"></script>
@@ -85,6 +87,9 @@
 			
       var objectArray = [];
       
+      var isMouseDown = false, startRotation = 0;
+
+      
       var peopleEnabled = localStorage["showpeople"] ? JSON.parse(localStorage["showpeople"]): true;
       var audioEnabled = localStorage["audio"] ? JSON.parse(localStorage["audio"]): true;
       var hdEnabled = localStorage["hd"] ? JSON.parse(localStorage["hd"]): false;
@@ -110,13 +115,22 @@
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 35, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 6000 );
+				camera = new THREE.PerspectiveCamera( 40, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 6000 );
 				camera.position.z = 400;
 				camera.position.x = 0;
 				camera.position.y = 162;
+				/*
+				camera.position.x = radious * Math.sin( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 );
+				camera.position.y = radious * Math.sin( phi * Math.PI / 360 );
+				camera.position.z = radious * Math.cos( theta * Math.PI / 360 ) * Math.cos( phi * Math.PI / 360 );
+				*/
+				
 				camera.rotation.y = (Math.PI/180)*-90;
 				
-    				
+    		
+
+				onMouseDownPosition = new THREE.Vector2();
+				
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xcccccc, 3000, 6000 );
 
@@ -491,9 +505,62 @@
 	    window.addEventListener( 'resize', onWindowResize, false );
       window.addEventListener( 'mousemove', onMouseMove, false );
       window.addEventListener( 'touchmove', onMouseMove, false );
+      
+
+
+			document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+			document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+			
 		}
 		
-    		
+		
+			function onDocumentMouseDown( event ) {
+
+				event.preventDefault();
+
+				isMouseDown = true;
+
+				onMouseDownPosition.x = event.clientX;
+				onMouseDownPosition.y = event.clientY;
+				
+				startRotation = camera.rotation.y;
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				event.preventDefault();
+
+				if ( isMouseDown ) {
+
+					var xdelta = ( ( event.clientX - onMouseDownPosition.x ) * 0.05 );
+					var ydelta = ( ( event.clientY - onMouseDownPosition.y ) * 0.05 );
+
+					camera.rotation.y = startRotation - xdelta * Math.PI / 360;
+					camera.updateMatrix();
+
+				}
+
+			}
+
+			function onDocumentMouseUp( event ) {
+
+				event.preventDefault();
+
+				isMouseDown = false;
+				cameraInertia = event.clientX - onMouseDownPosition.x;
+				
+				onMouseDownPosition.x = event.clientX - onMouseDownPosition.x;
+				onMouseDownPosition.y = event.clientY - onMouseDownPosition.y;
+
+				if ( onMouseDownPosition.length() > 5 ) {
+
+					return;
+
+				}
+			}
+			
     function onMouseMove( e ) {
       mouseVector.x = 2 * (e.clientX / SCREEN_WIDTH) - 1;
       mouseVector.y = 1 - 2 * ((e.clientY - HEADER_HEIGHT) / (SCREEN_HEIGHT));
@@ -512,15 +579,26 @@
 			camera.aspect = SCREEN_WIDTH/SCREEN_HEIGHT//window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
 
-			controls.handleResize();
+			//controls.handleResize();
 
 			renderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
 //			renderer.setSize( window.innerWidth, window.innerHeight );
 
 		}
+		
+				function pointerlockchange ( event ) {
+				  var element = document.body;
+					if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
+            controls.enabled = true;
+					}
+					else controls.enabled = false;
+				}
+
+				function pointerlockerror ( event ) {			}
+
 
       function toggleFullscreen () {
-     
+        
         if (fullscreen) {
           if(document.exitFullscreen) {
             document.exitFullscreen();
@@ -536,7 +614,12 @@
         }
 
         else {
-          var element = document.documentElement;
+          
+
+          var element = document.body;
+          
+          
+         
           if(element.requestFullscreen) {
             element.requestFullscreen();
           } else if(element.mozRequestFullScreen) {
@@ -546,7 +629,11 @@
           } else if(element.msRequestFullscreen) {
             element.msRequestFullscreen();
           }
-  
+
+ // Ask the browser to lock the pointer
+					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
+					element.requestPointerLock();
+
           $("#fullscreenbutton").css({"opacity": 1});
           fullscreen = true;
         }
@@ -628,6 +715,77 @@
         $("#qualitybutton").show();
         $("#fullscreenbutton").show();
         
+		
+/*
+   			controls = new THREE.PointerLockControls( camera );
+				scene.add( controls.getObject() );
+
+*/				
+			
+
+				var onKeyDown = function ( event ) {
+
+					switch ( event.keyCode ) {
+
+						case 38: // up
+						case 87: // w
+							moveForward = true;
+							break;
+
+						case 37: // left
+						case 65: // a
+							moveLeft = true; break;
+
+						case 40: // down
+						case 83: // s
+							moveBackward = true;
+							break;
+
+						case 39: // right
+						case 68: // d
+							moveRight = true;
+							break;
+
+						case 32: // space
+							if ( canJump === true ) velocity.y += 350;
+							canJump = false;
+							break;
+
+					}
+
+				};
+
+				var onKeyUp = function ( event ) {
+
+					switch( event.keyCode ) {
+
+						case 38: // up
+						case 87: // w
+							moveForward = false;
+							break;
+
+						case 37: // left
+						case 65: // a
+							moveLeft = false;
+							break;
+
+						case 40: // down
+						case 83: // s
+							moveBackward = false;
+							break;
+
+						case 39: // right
+						case 68: // d
+							moveRight = false;
+							break;
+
+					}
+
+				};
+
+				document.addEventListener( 'keydown', onKeyDown, false );
+				document.addEventListener( 'keyup', onKeyUp, false );
+        
 			  if (audioEnabled) {
           ambientsound.play();
           ambientsound.addEventListener('ended', function() {
@@ -639,6 +797,7 @@
 				container.appendChild( renderer.domElement );
 				animate();
 				
+				/*
 				controls = new THREE.FirstPersonControls( camera );
 				controls.movementSpeed = 300;
 				if(audioEnabled) controls.audio = true;
@@ -646,6 +805,9 @@
 				controls.lookVertical = false;
 				controls.header = HEADER_HEIGHT;
         controlsReady = true;
+        */
+        
+        
 			
       }
       
@@ -659,7 +821,7 @@
 
 			function render() {
 				var delta = clock.getDelta();
-				if (controlsReady) controls.update( delta );
+				//if (controlsReady) controls.update( delta );
 				THREE.AnimationHandler.update(delta);
 				for (i=0;i<objectArray.length;i++){
   				  objectArray[i].person.position.x -= objectArray[i].velocity;
@@ -674,6 +836,11 @@
         objectContainer.children.forEach(function( frame ) {
           frame.material.color.setRGB( 0.1,0.1, 0.1 );
         });
+        
+        cameraInertia = cameraInertia - cameraInertia/10;
+        if (Math.abs(cameraInertia) < 0.1) cameraInertia = 0;
+        if (cameraInertia !== 0) camera.rotation.y -= cameraInertia;
+        
         lookAt = 'Interactive Gallery';
         for( var i = 0; i < intersects.length; i++ ) {
           var intersection = intersects[ i ],
