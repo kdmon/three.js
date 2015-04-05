@@ -631,19 +631,11 @@
 //			renderer.setSize( window.innerWidth, window.innerHeight );
 
 		}
-		
-				function pointerlockchange ( event ) {
-				  var element = document.body;
-					if ( document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element ) {
-            controls.enabled = true;
-					}
-					else controls.enabled = false;
-				}
-
-				function pointerlockerror ( event ) {			}
 
 
       function toggleFullscreen () {
+        
+        // todo : listen to full screen exit event and update toggle setting
         
         if (fullscreen) {
           if(document.exitFullscreen) {
@@ -661,10 +653,7 @@
 
         else {
           
-
           var element = document.body;
-          
-          
          
           if(element.requestFullscreen) {
             element.requestFullscreen();
@@ -675,10 +664,6 @@
           } else if(element.msRequestFullscreen) {
             element.msRequestFullscreen();
           }
-
- // Ask the browser to lock the pointer
-					element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-					element.requestPointerLock();
 
           $("#fullscreenbutton").css({"opacity": 1});
           fullscreen = true;
