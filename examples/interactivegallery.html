@@ -102,7 +102,7 @@
 			
 			var fps = 24;
 			
-			var lookAt, mouseVector, objectContainer;
+			var lookAt = false, mouseVector, objectContainer;
 			
 			var fullscreen = false;
 			
@@ -527,20 +527,39 @@
 				onMouseDownPosition.y = event.clientY;
 				
 				startRotation.x = camera.rotation.y;
-				startRotation.y = camera.rotation.z;
+				startRotation.y = camera.position.y;
+				
+        mouseVector.x = 2 * (event.clientX / SCREEN_WIDTH) - 1;
+        mouseVector.y = 1 - 2 * ((event.clientY - HEADER_HEIGHT) / (SCREEN_HEIGHT));
+        
+        raycaster.setFromCamera( mouseVector, camera );
+        var intersects = raycaster.intersectObjects( objectContainer.children );
+        
+        objectContainer.children.forEach(function( frame ) {
+          frame.material.color.setRGB( 0.1,0.1, 0.1 );
+        });
+        
+        lookAt = false;
+        for( var i = 0; i < intersects.length; i++ ) {
+          var intersection = intersects[ i ];
+          var obj = intersection.object;
+          obj.material.color.setRGB( 1, 1, 1 );
+          lookAt = obj;
+        }
 
 			}
 
 			function onDocumentMouseMove( event ) {
 
-				event.preventDefault();
+        event.preventDefault();
 
 				if ( isMouseDown ) {
 
-					var xdelta = ( ( event.clientX - onMouseDownPosition.x ) * 0.075 );
-					var ydelta = ( ( event.clientY - onMouseDownPosition.y ) * 0.025 );
+					var xdelta = ( ( event.clientX - onMouseDownPosition.x ) * 0.06 );
+					var ydelta = ( ( event.clientY - onMouseDownPosition.y ) * 0.1 );
 
-					camera.rotation.y = startRotation.x - xdelta * Math.PI / 180;
+					camera.rotation.y = startRotation.x + xdelta * Math.PI / 180;
+					camera.position.y = startRotation.y + ydelta;
 					//camera.rotation.z = startRotation.y - ydelta * Math.PI / 180;
 					camera.updateMatrix();
 
@@ -554,11 +573,31 @@
 
 				isMouseDown = false;
 				//cameraInertia = startRotation.x + ((event.clientX - onMouseDownPosition.x) * 0.05 * Math.PI/180);
-				console.log(cameraInertia);
+
 				onMouseDownPosition.x = event.clientX - onMouseDownPosition.x;
 				onMouseDownPosition.y = event.clientY - onMouseDownPosition.y;
+        
+        var initialSelection = lookAt ? lookAt.title : 'No selection';
+        
+        mouseVector.x = 2 * (event.clientX / SCREEN_WIDTH) - 1;
+        mouseVector.y = 1 - 2 * ((event.clientY - HEADER_HEIGHT) / (SCREEN_HEIGHT));
+        
+        raycaster.setFromCamera( mouseVector, camera );
+        var intersects = raycaster.intersectObjects( objectContainer.children );
+        
+        objectContainer.children.forEach(function( frame ) {
+          frame.material.color.setRGB( 0.1,0.1, 0.1 );
+        });
+        
+        lookAt = false;
+        for( var i = 0; i < intersects.length; i++ ) {
+          
+          var intersection = intersects[ i ];
+           var obj = intersection.object;
+          lookAt = obj;
+        }
 
-        if (lookAt) {
+        if (lookAt.title == initialSelection) {
           camera.position.z = 400;
           camera.position.x = lookAt.position.x;
           camera.rotation.y = -lookAt.rotation.y;
@@ -836,28 +875,13 @@
   				  if (objectArray[i].person.position.x<-1000) objectArray[i].person.position.x = 21000;
   				}
 				if (hdEnabled) groundMirror.render();
-  				
-        raycaster.setFromCamera( mouseVector, camera );
-        var intersects = raycaster.intersectObjects( objectContainer.children );
-        
-        objectContainer.children.forEach(function( frame ) {
-          frame.material.color.setRGB( 0.1,0.1, 0.1 );
-        });
-        
+
         cameraInertia = cameraInertia - cameraInertia/10;
         if (Math.abs(cameraInertia) < 0.1) cameraInertia = 0;
         if (cameraInertia !== 0) camera.rotation.y -= cameraInertia * 0.02;
         
         // move forward
-        if (isMouseDown) camera.translateZ(-50*delta);
-        
-        lookAt = false;
-        for( var i = 0; i < intersects.length; i++ ) {
-          var intersection = intersects[ i ],
-          obj = intersection.object;
-          obj.material.color.setRGB( 1, 1, 1 );
-          lookAt = obj;
-        }
+        if (isMouseDown) camera.translateZ(-100*delta);
         
 				renderer.render( scene, camera );
 
